@@ -1,0 +1,278 @@
+\documentclass{algo}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{soul}
+\usepackage{attrib}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[linesnumbered,commentsnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+\SetKwComment{tcc}{ \# }{}
+\SetKwComment{tcp}{ \# }{}
+
+\usepackage{siunitx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathreplacing,calc,arrows.meta,shapes,graphs}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+\usefonttheme{serif}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% Math stuffs
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\lcm}{\text{lcm}}
+\newcommand{\Inn}{\text{Inn}}
+\newcommand{\Aut}{\text{Aut}}
+\newcommand{\Ker}{\text{Ker}\ }
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+\newcommand{\yournewcommand}[2]{Something #1, and #2}
+
+\newenvironment{question}[1]{\par\textbf{Question #1.}\par}{}
+
+\newcommand{\pmidg}[1]{\parbox{\widthof{#1}}{#1}}
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\newcommand{\frameoutput}[1]{\frame{\colorbox{white}{#1}}}
+
+\newcommand{\tikzmark}[1]{%
+\tikz[baseline=-0.55ex,overlay,remember picture] \node[inner sep=0pt,] (#1)
+{\vphantom{T}};
+}
+
+\newcommand{\braced}[3]{%
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [thick,decorate,decoration={brace,raise=1ex,amplitude=4pt},blue] (#2.south west-|T1.south west) -- node[anchor=west,left,xshift=-1.8ex,text=olive]{#3} (#1.north west-|T1.south west);
+    \end{tikzpicture}
+}
+
+\title{Data Structures and Sorting Implementations}
+\author{Sumner Evans}
+\date{25 August 2023}
+\institute{Colorado School of Mines}
+
+\begin{document}
+
+\begin{frame}{Why Do We Care?}
+
+    Data structures allow us to hide implementation details of how our data is
+    stored in memory. This is convenient for programmers because it allows us to
+    interact with our data via \textit{abstractions}.
+    \pause
+
+    However, without understanding some of the implementation details, we might
+    misanalyse our algorithmic complexities when using these data structures.
+    \pause
+
+    This can not only lead to you getting a bad grade on your algorithms
+    homework assignments or projects, but it can also lead to you writing code
+    which you \textit{think} is efficient, but is actually very slow.
+
+\end{frame}
+
+\begin{frame}{Lists}
+
+    A list is a data structure which supports at least the following operations:
+
+    \begin{itemize}
+        \item \texttt{append(x)} or \texttt{push(x)}: Add the element \texttt{x}
+            to the end of the list.
+        \item \texttt{at(i)} or the \texttt{[i]} operator: Get the element at
+            index $i$.
+        \item \texttt{insert(i, x)}: Insert the element \texttt{x} at index $i$.
+    \end{itemize}
+    \pause
+
+    What is the complexity of \texttt{append(x)}? \texttt{at(i)}? \\
+    \texttt{insert(i, x)}?
+    \pause
+
+    \textbf{This is a trick question!} The answer depends on the list data
+    structure implementation you are using.
+
+\end{frame}
+
+\begin{frame}{List Implementations in C++}
+    In C++ there are four main list implementations:
+
+    \begin{itemize}
+        \item \href{https://en.cppreference.com/w/cpp/container/vector}{\texttt{std::vector}}
+        \item \href{https://en.cppreference.com/w/cpp/container/list}{\texttt{std::list}}
+        \item \href{https://en.cppreference.com/w/cpp/container/forward_list}{\texttt{std::forward\_list}}
+        \item \href{https://en.cppreference.com/w/cpp/container/deque}{\texttt{std::deque}}
+    \end{itemize}
+
+    Let's look at cppreference.com to see what the documentation says about the
+    complexity of the various operations.
+
+    \pause
+
+    \begin{block}{Question}
+        With your neighbour, write down one real-world situation where you would
+        use each of the four list implementations.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Queues, Stacks, and Deques}
+    In languages that have queues and stacks in their standard libraries, they
+    are usually implemented as wrappers around a list data structure.
+    \pause
+
+    Stacks can be implemented with a list since appending and removing from the
+    end of a list is $\mathcal{O}(1)$.
+    \pause
+
+    Queues are generally implemented with a deque since removal from the front
+    and insertion at the back of a queue are both $\mathcal{O}(1)$ operations.
+\end{frame}
+
+\begin{frame}{What about \{MY\_FAVOURITE\_LANGUAGE\}?}
+    \begin{itemize}
+        \item Python has \texttt{list} (dynamically sized array) and
+            \texttt{collections.deque} (doubly-linked list).
+        \item Rust has \texttt{std::vec::Vec} (dynamically sized array),
+            \texttt{std::collections::VecDeque} (ring buffer), and
+            \texttt{std::collections::LinkedList} (doubly-linked list).
+        \item JavaScript has \texttt{Array} and \texttt{TypedArray} (both
+            dynamically sized arrays).
+        \item Java has \texttt{ArrayList} (dynamically sized array),
+            \texttt{LinkedList} (doubly-linked list), and
+            \texttt{Vector} (synchronized dynamically sized array).
+        \item Go has slices (dynamically sized arrays).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Dictionaries (Maps)}
+
+    Generally, a dictionary is a data structure which supports at least the
+    following operations:
+
+    \begin{itemize}
+        \item \texttt{get(k)} or \texttt{find(k)}: Get the value associated with
+            the key \texttt{k}.
+        \item \texttt{set(k, v)}: Set the value associated with the key
+            \texttt{k} to \texttt{v}.
+        \item \texttt{remove(k)}: Remove the key \texttt{k} from the dictionary.
+        \item \texttt{contains(k)}: Return whether or not the dictionary
+            contains the key \texttt{k}.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Dictionary Implementations in C++}
+    In C++ there are two main dictionary implementations:
+
+    \begin{itemize}
+        \item \href{https://en.cppreference.com/w/cpp/container/map}{\texttt{std::map}}
+        \item \href{https://en.cppreference.com/w/cpp/container/unordered_map}{\texttt{std::unordered\_map}}
+    \end{itemize}
+
+    Let's look at cppreference.com to see what the documentation says about the
+    complexity of the various operations.
+
+    \pause
+
+    \begin{block}{Question}
+        With your neighbour, write down one real-world situation where you would
+        use each of the dictionary implementations.
+    \end{block}
+\end{frame}
+
+\begin{frame}{What about \{MY\_FAVOURITE\_LANGUAGE\}?}
+    \begin{itemize}
+        \item Python has \texttt{dict} (hash map).
+        \item Rust has \texttt{std::collections::hash\_map::HashMap} (hash map),
+            \texttt{std::collections::BTreeMap} (B-Tree).
+        \item JavaScript has \texttt{Map} (hash map).
+        \item Java has \texttt{HashMap} (hash map),
+            \texttt{TreeMap} (Red-Black Tree), and
+            \texttt{LinkedHashMap} (hash map with predictable iteration).
+        \item Go has \texttt{map} (hash map).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Sets}
+    Sets are just dictionaries without a value associated with each key (only
+    the key matters).
+
+    For each of the dictionary data structure implementations in each of the
+    languages we've discussed except Go, there is a corresponding set data
+    structure implementation with equivalent performance characteristics.
+    \pause
+
+    \begin{itemize}
+        \item \texttt{std::set} and \texttt{std::unordered\_set} in C++.
+        \item \texttt{set} in Python.
+        \item \texttt{std::collections::hash\_set::HashSet} and
+            \texttt{std::collections::BTreeSet} in Rust.
+        \item \texttt{Set} in JavaScript.
+        \item \texttt{HashSet}, \texttt{TreeSet}, and \texttt{LinkedHashSet} in
+            Java.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Sorting}
+    Most languages provide built-in sort functions. In general, you will need to
+    read your programming language's documentation to find out what complexity
+    guarantees the sorting functions provide.
+
+    \begin{itemize}
+        \item C++:
+            \href{https://en.cppreference.com/w/cpp/algorithm/sort}{\texttt{std::sort}},
+            \href{https://en.cppreference.com/w/cpp/algorithm/stable_sort}{\texttt{std::stable\_sort}},
+            and
+            \href{https://en.cppreference.com/w/cpp/algorithm/qsort}{\texttt{std::qsort}}.
+
+        \item Python: \texttt{sorted} and \texttt{list.sort} use
+            \href{https://en.wikipedia.org/wiki/Timsort}{Timsort}.
+
+        \item Rust:
+            \href{https://doc.rust-lang.org/std/vec/struct.Vec.html\#method.sort}{\texttt{Vec::sort}}
+            and
+            \href{https://doc.rust-lang.org/std/primitive.slice.html\#method.sort_unstable}{\texttt{slice::sort\_unstable}}.
+
+        \item Go:
+            \href{https://pkg.go.dev/sort\#Sort}{\texttt{sort.Sort}} and
+            \href{https://pkg.go.dev/sort\#Stable}{\texttt{sort.Stable}}. Or with
+            generics:
+            \href{https://pkg.go.dev/slices\#Sort}{\texttt{slices.Sort}} and
+            \href{https://pkg.go.dev/slices\#SortStableFunc}{\texttt{slices.SortStableFunc}}.
+    \end{itemize}
+
+    \pause
+
+    \begin{block}{Note}
+        Sorting algorithms are like crypto algorithms: you generally should not
+        implement them yourself.
+    \end{block}
+\end{frame}
+
+\end{document}
+% Local Variables:
+% TeX-command-extra-options: "-shell-escape"
+% End:
