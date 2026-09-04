@@ -1,0 +1,8 @@
+Title: Vim
+Description: >
+    A lightning talk about the Vim text editor
+Date: 2017-09-07
+Thumbnail: graphics/vim.png
+Files:
+    SlidesPDF: vim.pdf
+    LaTeX: vim.tex

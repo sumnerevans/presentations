@@ -1,0 +1,245 @@
+\documentclass{lug}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+
+\newcommand{\textapprox}{\raisebox{0.5ex}{\texttildelow}}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+
+\makeatletter
+\makeatother
+
+\title{Vim}
+\author{Sumner Evans}
+\institute{Mines Linux Users Group}
+
+\begin{document}
+
+\section{Text Editors}
+\begin{frame}{Why do we need text editors when we have IDEs?}
+    \begin{itemize}[<+->]
+        \item Often need to edit configuration files and you don't want to fire
+            up Visual Studio to edit a simple text file.
+        \item Most tasks do not need any fancy IDE features to complete.  For
+            example, writing a simple Markdown file, writing a \LaTeX\ document,
+            writing this presentation with Beamer, programming, etc.
+        \item Most of the time, users don't use nearly all of the features that
+            IDEs provide. This is a waste of computer resources.
+        \item Good text editors have the ability to be extended to bring
+            IDE-like features to your text editor. This gives greater
+            customisation ability to the user.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Why use a terminal-based text editor?}
+    \begin{itemize}[<+->]
+        \item Often need to edit files and you don't want to have to open a GUI
+            file selector to navigate to the correct file and edit it. (In fact,
+            there are some bad file selectors which don't even let you open
+            dotfiles!)
+
+        \item If you are SSH-d into a remote machine (for example, while
+            administering a server), you may not have the luxury of a GUI (there
+            is SSH tunnelling, but that is not always an option).
+
+        \item These text editors are made by programmers for programmers.
+    \end{itemize}
+\end{frame}
+
+\section{Vim}
+
+\begin{frame}{Why use Vim over other terminal-based text editors?}
+    \begin{itemize}[<+->]
+        \item You don't need a mouse at all. In fact, by default, you
+            \textit{can't} use your mouse.
+
+        \item You can do everything with the keyboard in just a few keystrokes.
+
+        \item The \texttt{CTRL} key is hard to reach on standard keyboards.
+
+        \item But all of this is only possible because of \textbf{modal
+            editing}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Non Modal Editing}
+    \begin{itemize}[<+->]
+        \item In most editors, when you type with your keyboard, what you type
+            is inserted right at the cursor location.
+        \item To access functionality such as selection and scrolling you need
+            to use your mouse.
+        \item To access functionality such as find [and replace], you need to
+            use a menu item or some complicated keyboard shortcut.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modal Editing: The Ultimate Separation of Powers}
+    \begin{itemize}
+        \item Pressing the same keys do different actions depending on which
+            mode you are in.
+        \item This is extremely space-efficient.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modes: Normal}
+    \begin{itemize}
+        \item This is the default (normal) mode.
+        \item It is sometimes referred to as command mode.
+        \item This is the mode that you are in when you enter Vim.
+        \item You can tell you are in normal mode because there will be no text
+            in the bottom left corner of your console window.
+        \item Used to get to other modes, for cursor movement, copy/pasting,
+            saving, etc\dots
+        \item \textbf{To return here from other modes, press the \texttt{ESC}
+            key.}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modes: Insert}
+    \begin{itemize}
+        \item Allows you to actually type text.
+        \item To get to insert mode from normal mode, press \texttt{i}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modes: Visual}
+    \begin{itemize}
+        \item Allows you to select text at a character-resolution and perform
+            actions upon that selected text.
+        \item To get to visual mode from normal mode, press \texttt{v}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modes: Visual-Line}
+    \begin{itemize}
+        \item Allows you to select text at a line-resolution and perform
+            actions upon that selected text.
+        \item To get to visual-line mode from normal mode, press \texttt{V}
+            (capital V).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modes: Visual Block Mode}
+    \begin{itemize}
+        \item Allows you to select text vertical blocks of text and perform
+            actions on that selected text.
+        \item To get to visual mode from normal mode, press \texttt{CTRL + v}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Common Commands in Normal Mode}
+    \begin{itemize}
+        \item \texttt{h}, \texttt{j}, \texttt{k}, and \texttt{l} move the cursor
+            left, down, up, and right, respectively.
+        \item \texttt{i} puts you into insert mode, right where the cursor is.
+        \item \texttt{I} puts you into insert mode at the beginning of the
+            current line.
+        \item \texttt{a} puts you into insert mode, one character to the right
+            of the cursor.
+        \item \texttt{A} puts you into insert mode at the end of the current
+            line.
+        \item \texttt{o} inserts a line below the current line, and puts you
+            into insert mode on that line.
+        \item \texttt{O} (capital O) is the same as lower-case \texttt{o}, but a
+            line above.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Common Commands in Normal Mode}
+    \begin{itemize}
+        \item \texttt{dd} will delete the current line.
+        \item \texttt{yy} will copy the current line.
+        \item \texttt{cc} will delete the current line and put you into insert
+            mode at the beginning of the line.
+        \item \texttt{x} deletes the character under the cursor. \texttt{X}
+            deletes the character before the cursor.
+        \item \texttt{p} will paste whatever is currently in the paste buffer.
+            \begin{itemize}
+                \item How do you put something into the paste buffer? With
+                    \texttt{x}, \texttt{dd}, or \texttt{yy}! These also function
+                    as what you would think of as cut and copy.
+                \item But I can't paste from other programs! Vim sucks. Use
+                    \texttt{"+y} and \texttt{"+p} to copy and paste,
+                    respectively, from the system clipboard. Alternatively, add
+                    \texttt{set clipboard=unnamedplus} to your \texttt{.vimrc}.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Common Commands in Normal Mode}
+    \begin{itemize}
+        \item \texttt{u} can be used to undo, and \texttt{Ctrl+r} to redo.
+        \item \texttt{w} moves the cursor forward by one word at a time, and
+            \texttt{b} moves it back.
+        \item \texttt{gg} moves the cursor to the top of the file.
+        \item \texttt{G} moves the cursor to the bottom of the file.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{I'm Stuck and I can't exit Vim!}
+    \begin{itemize}
+        \item Type \texttt{:w} from normal mode to save the file (you can do
+            this at any point in the edit process)
+        \item \texttt{:q} will exit vim. If you have unsaved edits, it will warn
+            you of this and not exit.
+        \item \texttt{:q!} exits silently and without saving. Only use this if
+            you really don't want your file changes!
+        \item Lastly, these can be strung together to save and quit, i.e.
+            \texttt{:wq}. There is also \texttt{:x}, which does the same thing
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{A Sample of Cool Other Commands}
+    \begin{itemize}
+        \item \texttt{ci(} ``change inside parentheses'' --- deletes everything
+            inside the current parenthetical statement and then puts you into
+            insert mode. Super useful for changing function parameters.
+        \item \texttt{cap} ``change around paragraph'' --- deletes the paragraph
+            and puts you into insert mode.
+        \item \texttt{dw} ``delete word'' --- delete the next word.
+        \item \texttt{d3w} ``delete word'' --- delete the next three words.
+        \item \texttt{dt)} ``delet til )'' --- deletes everything on the line
+            until the next \texttt{)}.
+        \item \texttt{df)} deletes up to and including the next \texttt{)}.
+        \item Lots more examples in Jack's talk from last year.
+            (\url{https://github.com/jackrosenthal/lug-vim-awesome})
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Plugins}
+    There are a lot of plugins for Vim. I use 37 different plugins! If you want
+    Vim to do something for you, Google it and someone has probably implemented
+    that feature. (Or come to LUG for recommendations!)
+
+    My configurations: \\
+    \small\url{https://github.com/sumnerevans/dotfiles/tree/master/.vim}
+\end{frame}
+
+\begin{frame}{Installing Vim}
+    \begin{itemize}
+        \item Linux: install the \texttt{vim} package using your package manager
+        \item macOS: install the \texttt{vim} using Homebrew
+        \item Windows: Google it
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{References}
+    I used Caleb Jhones' and Jack Rosenthal's presentations on Vim from last
+    year as as inspiration/source code for this talk.
+    \begin{itemize}
+        \item Caleb's presentation: \url{https://github.com/ThirdOf5/VIM-Intro}
+        \item Jack's presentation: \url{https://github.com/jackrosenthal/lug-vim-awesome}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[standout]
+    \Huge
+    Questions?
+\end{frame}
+
+\end{document}
