@@ -1,0 +1,55 @@
+\documentclass{nix}
+
+\usepackage{fontawesome}
+
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\title{Finding Your Home in Nix}
+\subtitle{Configuring your \texttt{\$HOME} using Nix Home Manager}
+\author{Sumner Evans}
+\date{20 October 2023}
+
+\begin{document}
+
+\begin{frame}{There's no place like \texttt{\$HOME}}
+    % For the Linux user, the $HOME directory is probably the most intimate part
+    % of our computing experience.
+\end{frame}
+
+% $HOME is more than dotfiles. It's all of the programs and versions.
+
+\begin{frame}{Overview}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+\begin{frame}{Thank You!}
+    \splitslide{0.65}{1em}{
+        \begin{LARGE}
+            I've been \textbf{Sumner Evans}.
+        \end{LARGE}
+        \vspace{1cm}
+
+        \begin{Large}
+            {\faGlobe} \href{https://sumnerevans.com}{sumnerevans.com}
+
+            {\faGithub} \href{https://github.com/sumnerevans}{sumnerevans}
+        \end{Large}
+    }{
+        \begin{center}
+            \includegraphics[width=0.4\textheight]{./images/slides-qr}
+            \textbf{Slides}
+        \end{center}
+    }
+\end{frame}
+
+\end{document}
