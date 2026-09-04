@@ -1,0 +1,160 @@
+\documentclass{lug}
+
+\title{SSH}
+\author{Sumner Evans}
+\institute{Mines Linux Users Group}
+
+\usepackage{etoolbox}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+
+\newcommand{\textapprox}{\raisebox{0.5ex}{\texttildelow}}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+\begin{document}
+
+\section{Getting Started}
+
+\begin{frame}{What is SSH?}
+    \begin{itemize}[<+->]
+        \item SSH stands for \textbf{S}ecure \textbf{SH}ell.
+        \item SSH is a cryptographic network protocol for operating network
+            services securely over an unsecured network.
+        \item SSH clients allow you to access any SSH server remotely and
+            securely.
+        \item SSH uses public-key cryptography for authentication.
+        \item You can do other things with SSH as well.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{How do I get an SSH client?}
+    \begin{itemize}
+        \item Linux: \texttt{openssh} (or similar) package in your package
+            manager (it's probably already installed).
+        \item macOS: SSH is already installed, but it may be an old version. Use
+            Homebrew if you want the latest version.
+        \item Windows: You can use PuTTY (\url{http://www.putty.org/}).
+        \item Your web browser: there's an SSH plugin for all the modern
+            browsers.
+        \item Your phone: there's an app for that.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{How do I install an SSH server?}
+    \begin{itemize}
+        \item Arch Linux: \texttt{openssh} package.
+        \item Other Linux: you may need to install \texttt{openssh-server} or
+            similar.
+        \item macOS: You can enable Remote
+            Login\footnote{https://www.techwalla.com/articles/how-to-use-ssh-on-mac-os-x}
+            in System Settings.
+        \item Windows: Read this ServerFault article and good luck.
+            \url{http://serverfault.com/questions/8411/what-is-a-good-ssh-server-to-use-on-windows}
+    \end{itemize}
+\end{frame}
+
+\section{Using an SSH client}
+\begin{frame}{The basics}
+    \begin{itemize}[<+->]
+        \item \texttt{ssh [user@]server[:port]}
+
+            \texttt{user} is defaulted to your local username\\
+            \texttt{port} is defaulted to 22
+        \item Enable X-Forwarding: use \texttt{-X} flag
+        \item Exiting an SSH session: Ctrl + D or type \texttt{logout} or
+            \texttt{exit} if your remote session is still running
+        \item If you want to just run one command on the remote server:
+            \texttt{ssh [flags] user@server[:port] command}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{I hate entering my password all the time}
+    When logging into a server, you can authenticate using your password, or you
+    can set up an SSH key to authenticate you without entering your password.
+    How to configure this?
+    \begin{enumerate}
+        \item \texttt{ssh-keygen} and follow the steps - definitely set a
+            password
+        \item \texttt{ssh-copy-id server} and enter your password on the server
+        \item \texttt{ssh server} should now authenticate you without having to
+            use a password
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{But now I have to enter my SSH Key password all the time}
+    If you don't like entering your SSH key password all the time, you can use
+    \texttt{ssh-agent} and \texttt{shh-add}.
+
+    I have the following in my \texttt{\textapprox/.zshrc} to set this up
+    automatically.
+
+    \begin{minted}{bash}
+    if [ ! -S ~/.ssh/ssh_auth_sock  ]; then
+        eval `ssh-agent`
+        ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+    fi
+    export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+    ssh-add -l | grep "The agent has no identities" && ssh-add
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Configuring your SSH client}
+    One thing that is annoying is when you have to type out your full username
+    and full hostname when connecting to a server. You can add aliases to
+    \texttt{\textapprox/.ssh/config} so you don't have to do this.
+
+    \begin{minted}{html}
+        Host isengard
+            HostName isengard.mines.edu
+            User jonathanevans
+            Port 42
+            ...
+    \end{minted}
+\end{frame}
+
+\section{Setting up an SSH Server}
+\begin{frame}{Enabling SSH to your computer}
+    On Arch, just start an enable \texttt{sshd} via \texttt{systemctl}.
+
+    You can configure your SSH daemon via the \texttt{/etc/ssh/sshd\_config}
+    file (note the \texttt{d}).
+
+    Here are some of the things you can configure:
+    \begin{itemize}
+        \item \texttt{AllowUsers} - allows you to set which users can log in
+        \item \texttt{PermitRootLogin} - if \texttt{yes}, you can SSH into the
+            computer as root
+        \item \texttt{AllowGroups} - allows you to set which groups can log in
+        \item \texttt{PasswordAuthentication} - set to \texttt{no} if you want
+            to force authentication using SSH key
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{References}
+    \begin{itemize}
+        \singlespacing\fontsize{10}{10}\selectfont
+    \item Wikipedia: \url{https://en.wikipedia.org/wiki/Secure_Shell}
+    \item The Arch Wiki:
+        \url{https://wiki.archlinux.org/index.php/Secure_Shell}
+    \item The \texttt{SSH} manpage
+    \item This Medium Post:
+        \url{https://medium.com/@shazow/ssh-how-does-it-even-9e43586e4ffc\#.uwmcu64az}
+    \item \url{http://tychoish.com/post/9-awesome-ssh-tricks/}
+    \item
+        \url{https://lani78.com/2008/08/08/generate-a-ssh-key-and-disable-password-authentication-on-ubuntu-server/}
+\end{itemize}
+Thanks to Kieth Hellman for inspiring this talk
+\end{frame}
+
+\begin{frame}[standout]
+    \Huge
+    Questions?
+\end{frame}
+
+\end{document}

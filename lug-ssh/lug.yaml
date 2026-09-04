@@ -1,0 +1,8 @@
+Title: SSH
+Description: >
+    The glories of Secure Shell
+Date: 2017-02-16
+Thumbnail: graphics/ssh.png
+Files:
+    SlidesPDF: ssh.pdf
+    LaTeX: ssh.tex
