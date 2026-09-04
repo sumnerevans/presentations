@@ -1,0 +1,568 @@
+\documentclass{beeper}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{soul}
+\usepackage{attrib}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[linesnumbered,commentsnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+\SetKwComment{tcc}{ \# }{}
+\SetKwComment{tcp}{ \# }{}
+
+\usepackage{siunitx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathreplacing,calc,arrows.meta,shapes,graphs}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+\setmainfont{Open Sans Light}
+\usefonttheme{serif}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% Math stuffs
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\lcm}{\text{lcm}}
+\newcommand{\Inn}{\text{Inn}}
+\newcommand{\Aut}{\text{Aut}}
+\newcommand{\Ker}{\text{Ker}\ }
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+\newcommand{\yournewcommand}[2]{Something #1, and #2}
+
+\newenvironment{question}[1]{\par\textbf{Question #1.}\par}{}
+
+\newcommand{\pmidg}[1]{\parbox{\widthof{#1}}{#1}}
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\newcommand{\frameoutput}[1]{\frame{\colorbox{white}{#1}}}
+
+\newcommand{\tikzmark}[1]{%
+\tikz[baseline=-0.55ex,overlay,remember picture] \node[inner sep=0pt,] (#1)
+{\vphantom{T}};
+}
+
+\newcommand{\braced}[3]{%
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [thick,decorate,decoration={brace,raise=1ex,amplitude=4pt},blue] (#2.south west-|T1.south west) -- node[anchor=west,left,xshift=-1.8ex,text=olive]{#3} (#1.north west-|T1.south west);
+    \end{tikzpicture}
+}
+
+\title{Architecting for Scale}
+\subtitle{A case-study in utilizing a sharded architecture for infinite* scalability}
+\author{Sumner Evans}
+\institute{Beeper}
+\date{27 September 2022}
+
+\begin{document}
+
+\begin{frame}{A bit about me}
+    My name is Sumner, I'm a \textbf{software engineer at Beeper}.
+    \begin{itemize}
+        \item I graduated from Colorado School of Mines in 2018 with my
+            bachelor's in CS and 2019 with a master's in CS.
+        \item I am an adjunct professor. Currently I'm teaching CSCI 400. I've
+            taught 406, and 564 in the past as well.
+        \item I enjoy skiing, volleyball, and soccer.
+        \item I'm a 4th degree black belt in ATA taekwondo.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Overview}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+
+    \begin{block}{This talk is interactive!}
+        If you have questions at any point, feel free to interrupt me.
+    \end{block}
+\end{frame}
+
+\section{A bit about Beeper}
+
+\begin{frame}{Beeper's mission}
+    Our mission is to:\\
+
+    \begin{quote}
+        make it easy for everyone on Earth to chat with each other.
+    \end{quote}
+    \pause
+
+    We specifically chose the word ``chat'' rather than ``communicate'' because
+    we are focusing on \textit{people talking to one another}.
+\end{frame}
+
+\begin{frame}{What is Beeper?}
+    \begin{center}
+        \textbf{Beeper is an app that brings all of your chat networks together into
+            a single inbox.}
+    \end{center}
+    \centerline{\includegraphics[width=0.3\textwidth]{images/beeper-mobile}}
+\end{frame}
+
+\begin{frame}{What is Beeper?}
+    \textbf{Beeper allows you to consolidate messages from 15+ chat apps into a
+        single inbox.}
+
+    \pause
+    \begin{itemize}
+        \item Beeper is available on on macOS, Windows, Linux iPhone, iPad,
+            Android and Chrome OS.
+        \item Beeper is built on top of the Matrix protocol.
+        \item Beeper encrypts all chats, including bridged chats, by
+            default\footnote[frame]{We have to momentarily decrypt your chat
+            messages to translate from the other network to Matrix, but we never
+            log or store your unencrypted messages.}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{We are targeting individuals, not enterprises}
+    \begin{center}
+        \textbf{\Large We want to beat WhatsApp, not Slack.}
+        \vspace{1cm}
+        \pause
+
+        \textbf{\large Our core competency is the 50th highest priority at the
+        big tech companies.}
+
+        Most chat networks are an afterthought within the ecosystem of a larger
+        company. At Beeper, chat is all we care about.
+    \end{center}
+\end{frame}
+
+\begin{frame}{How we make money}
+    \textbf{We charge a flat \$10/month fee to use Beeper.} This fee allows
+    users to connect as many chat networks as they want.
+    \pause
+
+    \textbf{No ads. No data mining.} We take advantage of Matrix's E2EE to add
+    additional privacy guarantees.
+    \pause
+
+    \begin{center}
+        \LARGE
+        \textbf{The transaction is simple:\\ users pay us money for a service.}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Bridging to a glorious Matrix future}
+    We see bridges as a way to onboard users into the Matrix ecosystem.
+
+    Users can switch to a new app without loosing a single conversation!
+    \pause
+
+    \vspace{1cm}
+    \begin{center}
+        \Large
+        \textbf{We encourage our users to connect \textit{all} of their chat
+        networks to Beeper.}
+    \end{center}
+\end{frame}
+
+\section{What we've built}
+
+\begin{frame}{Custom clients for desktop and mobile}
+    We forked Element, and added custom features.
+    \vspace{0.5cm}
+
+    \centerline{\includegraphics[width=\textwidth]{images/desktop-and-mobile}}
+\end{frame}
+
+\begin{frame}{Bridges, bridges, and more bridges!}
+    We have built bridges to 10 networks:
+    \begin{multicols}{2}
+        \begin{itemize}
+            \item iMessage
+            \item WhatsApp
+            \item Facebook Messenger
+            \item SMS (Android)
+            \item Telegram
+            \item Signal
+            \item LinkedIn
+            \item Instagram
+            \item Twitter
+            \item Google Chat
+        \end{itemize}
+    \end{multicols}
+
+    \pause
+    We are actively developing new bridges to Discord and Slack.
+
+    \pause
+    You can also connect to IRC (via the Libera.chat bridge) and the rest of the
+    Matrix federation.
+\end{frame}
+
+\begingroup
+\def\insertframenumber{\relax}
+\begin{frame}[standout]
+    \Large
+    Demo!
+\end{frame}
+\endgroup
+
+\begin{frame}{What I work on at Beeper}
+    I am on the newly created \textit{Scaling} team.
+
+    Our current objective is to prepare Beeper for rocket-ship growth.
+    \vspace{0.5cm}
+    \pause
+
+    I was previously part of the \textit{Bridges} team. 
+
+    Notable projects included:
+    \begin{itemize}
+        \item Writing the LinkedIn bridge
+        \item Adding bridge status reporting and message send status
+        \item Implementing massive stability improvements in the Signal bridge
+        \item Implementing message import in our WhatsApp and Facebook bridges
+    \end{itemize}
+\end{frame}
+
+\section{What is software architecture?}
+
+\begin{frame}{Software architecture is about component interactions}
+    \centerline{\includegraphics[width=0.7\textwidth]{images/architectural-blueprint}}
+
+    Just like architects have to think about the interactions between plumbing,
+    electrical, HVAC, etc., software architects have to think about the
+    interactions of components in the software system.
+\end{frame}
+
+\begin{frame}{``The stack''}
+    No, not the one you learn in Data Structures.
+    \pause
+
+    In software architecture, the stack is the set of tools, services, and
+    languages used for the various components of the system.
+    \pause
+
+    The closer a system is to a user, the further \textit{up} the stack it is.
+
+    The further up in the stack you are, the closer to the frontend you are.
+\end{frame}
+
+\begin{frame}{What do you think software architecture is?}
+    \begin{itemize}[<+->]
+        \item What questions do software architects ask?
+        \item What concerns do software architects have to take into account?
+        \item What tradeoffs do software architects have to consider?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Examples of questions}
+    \begin{itemize}[<+->]
+        \item How and where is the code going to be deployed? (CI/CD,
+            Kubernetes, regions, etc.)
+        \item Which systems depend on each other? (DBs, orchestrator process,
+            etc.)
+        \item What dependencies are you using in each component? (security,
+            corporate policies, code quality, etc.)
+        \item What languages are you going to use? (different for
+            front/backend)?
+        \item What components are we going to write ourselves, and which are we
+            going to rely on open source or proprietary solutions for?
+        \item How will the various components communicate with one another
+            (GRPC, Rest, GraphQL, etc.)
+        \item How many resources should you allocate to each system? (memory,
+            disk, CPU, etc.)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Some more common architectural patterns and tools}
+    \textbf{Patterns}
+    \begin{itemize}[<+->]
+        \item \textbf{Microservices:} split your service into logical smaller
+            services and use IPC between services
+        \item \textbf{Load balancing:} split traffic across multiple services
+        \item \textbf{Sharding:} split data across independent services
+    \end{itemize}
+    \pause[\thebeamerpauses]
+
+    \textbf{Tools}
+    \begin{itemize}[<+->]
+        \item \textbf{Docker:} allows you to bundle runtime dependencies with
+            your executable in a \textit{container}
+        \item \textbf{Kubernetes:} allows you to orchestrate containers and
+            describe things like dependencies between them
+    \end{itemize}
+\end{frame}
+
+\section{A bit about Beeper's current architecture}
+
+\begin{frame}{A diagram}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/current-architecture}}
+
+    Let's look at the makeup of the current architecture.
+\end{frame}
+
+\begin{frame}{Existing base}
+    We are using existing open source projects for a lot of our architecture.
+    \pause
+
+    \textbf{Synapse} is an existing Matrix homeserver and we use the open source
+    \textbf{PostgreSQL} database.
+
+    All of the bridges are also open source.
+\end{frame}
+
+\begin{frame}{Deployment}
+    We are deploying on \textbf{AWS} and \textbf{Hetzner}. We use
+    \textbf{Kubernetes} to manage all of the services.
+    \pause
+
+    Synapse is where all of the messages (events) are stored, so it has to be
+    fast and reliable. It runs in AWS.
+    \pause
+
+    We run one bridge per user for every external network they connect to. This
+    is for security (process isolation) and flexibility.
+    \begin{itemize}[<+->]
+        \item We can deploy \textbf{different bridge versions} to different sets
+            of users
+        \item Bridges can be stopped and started individually
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Custom software}
+    Bridges normally connect directly to Synapse. However, Synapse has no way to
+    hotswap bridges.
+
+    We wrote ASMUX as an intermediate service to allow for hotswapping of
+    bridges.
+\end{frame}
+
+\begin{frame}{Back to the diagram}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/current-architecture}}
+
+    There are some disadvantages to this architecture\ldots
+\end{frame}
+
+\begin{frame}{Disadvantages of our architecture}
+    \begin{itemize}[<+->]
+        \item We have to run a \textbf{lot} of bridges
+        \item We run Synapse on AWS which is relatively expensive
+        \item Synapse becomes a bottleneck for all traffic
+    \end{itemize}
+    \pause[\thebeamerpauses]
+
+    We've reached the extent of how far we can scale with our current
+    architecture.
+
+    \begin{block}{Don't scale until you have to}
+        Don't architect your system for scale until you need to scale.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Stats}
+    Because we encourage users to connect every chat network, we have a lot of
+    puppet users.
+
+    \textbf{\large On average, each user brings 4716 puppeted users.}
+    \vspace{0.4cm}
+    \pause
+
+    All of these puppets represent real people on other networks, so they
+    each generate their own traffic.
+
+    \textbf{\large On average, each user and their puppets collectively account
+        for 100k events!}
+    \vspace{0.4cm}
+\end{frame}
+
+\begingroup
+\def\insertframenumber{\relax}
+\begin{frame}[standout]
+    \textbf{\LARGE We need to find a way to scale!}
+\end{frame}
+\endgroup
+
+\begin{frame}{Observation}
+    \begin{center}
+        \LARGE Bridged rooms are unique
+    \end{center}
+    \pause
+
+    Most (chat) rooms in Matrix are \textit{federated} which means that users on
+    different servers can participate.
+    \pause
+
+    Bridged rooms are only for a \textbf{single user} on Beeper.com.
+\end{frame}
+
+\begingroup
+\def\insertframenumber{\relax}
+\begin{frame}[standout]
+    \textbf{\LARGE Finding scalability}
+
+    Shard and load-balance our homeserver based on bridged vs. unbridged traffic
+\end{frame}
+\endgroup
+
+\section{Our new architecture}
+
+\begin{frame}{A sharded future}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+    Let's talk about the differences from the old architecture\ldots
+\end{frame}
+
+\begin{frame}{Splitting the homeserver, keeping the protocol}
+    \Large
+    \centering
+    This new architecture allows us to handle non-bridge traffic separately from
+    our bridge traffic.
+    \pause
+
+    \textbf{All while maintaining API compatibility with clients, bridges, and
+    the Matrix federation!}
+\end{frame}
+
+\begin{frame}{A sharded future}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+    Let's talk about the differences from the old architecture\ldots
+\end{frame}
+
+\begin{frame}{Hungryserv}
+    We run a \textbf{Hungryserv} instance for every user to handle that user's
+    bridge traffic.
+    \pause
+    We can run infinite\footnote[frame]{theoretically} Hungryserv instances for
+    our users.
+    \pause
+
+    \begin{itemize}[<+->]
+        \item If there's a message flood from a bridge, it only affects that
+            user.
+        \item We don't have to store all of the bridge events and users in our
+            Synapse database.
+        \item Synapse is less resource constrained and can do what it does best:
+            federate with other Matrix homeservers.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Hungryserv: why is it hungry?}
+    \Large
+    Because it's unfed\pause{erated!}
+\end{frame}
+
+% \begin{frame}{Hungryserv: aggressively unfederated}
+%     Each bridge belongs to a single user, so federation is unnecessary. \\
+%     \pause
+
+%     \begin{quote}
+%         When your DAG is a linked-list, don't store it as a DAG.
+%     \end{quote}
+%     \pause
+
+%     Being unfederated means that:
+%     \begin{itemize}
+%         \item we can avoid implementing the state resolution algorithm,
+%         \item event storage requires less metadata,
+%         \item deletions can be optimized, and
+%         \item infinite backfill becomes an simple batch SQL operation.
+%     \end{itemize}
+% \end{frame}
+
+% \begin{frame}{Hungryserv: goals, and non-goals}
+%     \textbf{Goals}
+%     \begin{itemize}
+%         \item Be fast
+%         \item Be compatible with Beeper clients (and mostly compatible with
+%             Element clients)
+%         \item Be API-compatible with the Appservice API for bridges
+%     \end{itemize}
+%     \pause
+
+%     \textbf{Non-goals}
+%     \begin{itemize}
+%         \item Be federated
+%         \item Be fully spec compliant
+%     \end{itemize}
+% \end{frame}
+
+\begin{frame}{A sharded future}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+    Let's talk about the differences from the old architecture\ldots
+\end{frame}
+
+\begin{frame}{Roomserv}
+    \textbf{Roomserv} is a service which splits client requests between Synapse
+    and Hungryserv.
+
+    Roomserv merges the responses from the two homeservers to make it appear as
+    a single homeserver to the client.
+\end{frame}
+
+\begin{frame}{A sharded future}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+    Let's talk about the differences from the old architecture\ldots
+\end{frame}
+
+% \begin{frame}{No more ASMUX}
+%     Hungryserv natively supports dynamic registration of app services, and knows
+%     how to route requests to the correct bridge.
+%     \pause
+
+%     \textbf{We no longer have to rely on the single transactions firehose from
+%     Synapse.}
+% \end{frame}
+
+% \begin{frame}{A sharded future}
+%     \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+%     Let's talk about the differences from the old architecture\ldots
+% \end{frame}
+
+\begin{frame}{A multi-cloud future?}
+    The resources for each user can be moved closer to them using a multi-cloud,
+    or multi-region strategy.
+
+    This will help reduce latency (especially to bridged networks) and allow for
+    us to deploy in more flexible and cost-effective environments.
+\end{frame}
+
+\begin{frame}{A sharded future}
+    \centerline{\includegraphics[width=1.15\textwidth]{images/new-architecture}}
+
+    Let's talk about the differences from the old architecture\ldots
+\end{frame}
+
+\begingroup
+\def\insertframenumber{\relax}
+\begin{frame}[standout]
+    \Large
+    Questions?
+\end{frame}
+\endgroup
+
+\end{document}
+% Local Variables:
+% TeX-command-extra-options: "-shell-escape"
+% End:
