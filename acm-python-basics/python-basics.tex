@@ -1,0 +1,660 @@
+\documentclass{acm}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{soul}
+\usepackage{attrib}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[linesnumbered,commentsnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+\SetKwComment{tcc}{ \# }{}
+\SetKwComment{tcp}{ \# }{}
+
+\usepackage{siunitx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathreplacing,calc,arrows.meta,shapes,graphs}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+\setmainfont{Open Sans Light}
+\usefonttheme{serif}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% Math stuffs
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\lcm}{\text{lcm}}
+\newcommand{\Inn}{\text{Inn}}
+\newcommand{\Aut}{\text{Aut}}
+\newcommand{\Ker}{\text{Ker}\ }
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+\newcommand{\yournewcommand}[2]{Something #1, and #2}
+
+\newenvironment{question}[1]{\par\textbf{Question #1.}\par}{}
+
+\newcommand{\pmidg}[1]{\parbox{\widthof{#1}}{#1}}
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\newcommand{\frameoutput}[1]{\frame{\colorbox{white}{#1}}}
+
+\newcommand{\tikzmark}[1]{%
+\tikz[baseline=-0.55ex,overlay,remember picture] \node[inner sep=0pt,] (#1)
+{\vphantom{T}};
+}
+
+\newcommand{\braced}[3]{%
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [thick,decorate,decoration={brace,raise=1ex,amplitude=4pt},blue] (#2.south west-|T1.south west) -- node[anchor=west,left,xshift=-1.8ex,text=olive]{#3} (#1.north west-|T1.south west);
+    \end{tikzpicture}
+}
+
+\title{Python Basics}
+\author{Sumner Evans}
+\institute{Mines ACM}
+
+\begin{document}
+
+\begin{frame}{A Small Survey}
+    Welcome everyone! I'd like to get to know everyone a bit more and get a feel
+    for everyone's prior experience with programming and Python.
+
+    \begin{itemize}[<+->]
+        \item What year are you in?
+        \item How many of you have programmed in any language before?
+        \item How many of you have programmed in \textbf{Python} before?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Overview}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{What is Python?}
+
+\begin{frame}{A Bit of History}
+    \begin{itemize}[<+->]
+        \item Python first appeared in early 1991. \emph{This means that Python
+            is older than Java and Ruby.}
+        \item Guido van Rossum (GvR, the creator of Python) designed his
+            language with \textbf{emphasis on readability}.
+        \item Python was named after \emph{Monty Python's Flying Circus}.
+        \item The language quickly gained popularity because of its appeal to
+            long-time UNIX/C hackers\footnote{See the Jargon File on hackers
+            vs.  crackers}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Why Learn Python?}
+    \begin{itemize}[<+->]
+        \item Python is a \textit{general purpose, multi-paradigm} language
+            meaning that it is very flexible and can be used in many different
+            scenarios.
+        \item Some of the main applications of Python in industry are web
+            programming, data science, machine learning, automation scripting.
+        \item Python is an easy language to learn.
+        \item Python runs anywhere, and generally requires little setup compared
+            to other languages.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{A Note on Python 2 and Python 3}
+    There are two main versions of Python: Python 2 and Python 3. As of earlier
+    this year, Python 2 is no longer supported, so nobody should use it.
+    Unfortunately, many projects and operating systems have not gotten with the
+    times and are still reliant on Python 2.
+
+    \pause
+    Python 3 has many major advantages over Python 2 as it fixes many annoying
+    inconsistencies with the older version.
+
+    \pause
+    For the purposes of this presentation, we will be talking \emph{strictly of
+    Python 3}.
+\end{frame}
+
+\section{Programming Basics in Python}
+
+\begin{frame}{Follow Along}
+    You can either install Python on your machine or use an online Python
+    environment such as \url{https://repl.it/languages/Python3}.
+
+    Most of the things we will cover today can be done directly in the REPL
+    (read-evaluate-print-loop) on the right, however you may want to write code
+    in the file on the left and run it.
+\end{frame}
+
+\begin{frame}[fragile]{Storing Data}
+    At its core, programming is about storing and manipulating \textit{data}.
+
+    \pause
+    In almost every programming language, there is a concept of a
+    \textbf{variable} which \textit{stores} data.
+
+    \pause
+    In Python, you can create a variable using the following syntax:
+    \begin{minted}{python}
+        name = "Sumner"
+        age = 22
+        likes_acm = True
+    \end{minted}
+
+    \textit{If you have ever programmed in a language such as Java, you may
+    notice that there is no special keyword for declaring a variable.}
+\end{frame}
+
+\begin{frame}[fragile]{Showing the Data}
+    Storing data isn't any good unless you can actually use it for something
+    useful. \pause One of the most basic things we can do with the data stored
+    is print it out to the console.
+
+    To print anything in Python, use the \texttt{print} function:
+    \begin{minted}{python}
+        name = "Sumner"
+        age = 22
+        print(name)
+        print(age)
+    \end{minted}
+
+    \pause
+    If you want to print multiple things at once, you can separate them with a
+    comma:
+    \begin{minted}{python}
+        print(name, age)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Getting Data From the User}
+    Often, we want to get some input from the user and store it in a variable.
+    \pause To do this in Python, we use the \texttt{input} function.
+
+    \begin{minted}{python}
+        name = input()
+        print("Hello", name)
+    \end{minted}
+
+    \pause
+    We can also optionally include prompt text:
+    \begin{minted}{python}
+        age = int(input("How old are you? "))
+        print("In one year, you will be", age + 1, "years old")
+    \end{minted}
+
+    \pause
+    What do you think the difference between \texttt{input()} and
+    \texttt{int(input())} is?
+\end{frame}
+
+\begin{frame}{What Sorts of Data Can We Store?}
+    There are many different \textit{types} of data that we can store in Python.
+    Here are the most basic data types (primitives):
+
+    \begin{itemize}
+        \item \texttt{bool} --- either \texttt{True} or \texttt{False}
+        \item \texttt{int} --- an integer
+        \item \texttt{float} --- a real number\footnote[frame]{Not all real
+            numbers can be represented as a floating point number, but that's
+            not normally important.}
+        \item \texttt{string} --- a sequence of characters\footnote[frame]{Note
+            that unlike other languages, there is no \texttt{char} datatype.
+            Chars are just one-character strings.}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Manipulating Data: Assigning a New Value to a Variable}
+    Having variables to store is nice, but a lot of times we want to modify the
+    value stored in the variable!
+
+    To do that, we use a very similar syntax to defining variables:
+    \begin{minted}{python}
+        name = "Sumner"  # declares a variable and gives it an
+                         # initial value
+        print(name)
+
+        name = "Jack"    # assigns the value "Jack" to the "name"
+                         # variable
+        print(name)
+    \end{minted}
+\end{frame}
+
+\begin{frame}{Manipulating Data: Basic Operations}
+    Similar to how you can perform operations on variables in algebra, you can
+    perform operations on variables. Here are some basic operations on primitive
+    data types in Python:
+
+    \begin{itemize}
+        \item \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{//}: add,
+            subtract, multiply, divide, integer division.
+        \item \texttt{**}: exponentiate ($3^8$ would be written \texttt{3**8}).
+        \item \texttt{<}, \texttt{>}, \texttt{==}: tests if two numbers are less
+            than, greater than, equal to each other, respectively.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Try it Yourself!}
+    \textbf{Try creating a few different variables of various types and
+    performing operations on them.}
+
+    A few examples to get you started:
+    \begin{minted}{python}
+        pi = 3.14159265
+        r = 10
+        print("diameter =", pi * (r ** 2))
+
+        email = input("Enter your email: ")
+        email_again = input("Verify your email: ")
+        print(email == email_again)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Making Decisions: Selection Using \texttt{if}}
+    It's all well and good that we can compare numbers and get a boolean value,
+    but we need to make \textit{decisions} with that information. That's where
+    \textbf{\texttt{if} statements} come in.
+
+    \pause
+    The syntax for \texttt{if} statements in Python is:
+    \begin{minted}{python}
+        if condition1:
+            # do whatever is in this indented section if condition1
+            # is True
+        elif condition2:
+            # do whatever is in this indented section if condition2
+            # is True
+        else:
+            # do whatever is in this indented section otherwise
+    \end{minted}
+
+    You can have arbitrary many \texttt{elif} blocks (including no elif blocks).
+    It is also not necessary to have an \texttt{else} block.
+\end{frame}
+
+\begin{frame}[fragile]{Making Decisions: Selection Using \texttt{if}: Example}
+    Here is a simple example of an \texttt{if} statement at work:
+    \begin{minted}{python}
+        likes_python = input("Do you like Python? (y/n)")
+        if likes_python == "y":
+            print("You like Python!")
+        elif likes_python == "n":
+            print("You don't like Python :(")
+        else:
+            print("I don't know if you like Python...")
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Making Decisions: Selection Using \texttt{if}: Your Turn!}
+    \textbf{Now it's your turn!} Try to write some Python which does the
+    following:
+
+    \begin{enumerate}
+        \item Creates a variable with a secret number of your choice.
+        \item Asks the user to guess a number.
+        \item Tells the user if their guess is above, below, or equal to the
+            secret number.
+    \end{enumerate}
+
+    \textit{Extra Credit:} Look up the documentation for the
+    \texttt{random.randint} function and see if you can make the secret number
+    random.
+\end{frame}
+
+\begin{frame}[fragile]{Doing Things Many Times: \texttt{for} loops}
+    Often, we might want to do the same thing (or a similar thing) multiple
+    times. In these situations, we need \textit{loops}.
+
+    \pause
+    The most common type of loop in Python is the \texttt{for} loop. Unlike
+    other languages, Python's \texttt{for} loop is a \textit{range-based for
+    loop}:
+
+    \begin{minted}{python}
+        for x in <iterable>:
+            # do what is in this indented block
+    \end{minted}
+
+    Whatever is in the \textit{indented} section will be run for every value in
+    the iterable.
+\end{frame}
+
+\begin{frame}[fragile]{Doing Things Many Times: \texttt{for} loops: Example}
+    There are a lot of things in Python are iterable. We will see more of them
+    soon, but here's an easy example to get you started:
+
+    \begin{minted}{python}
+        for x in range(20):
+            print(x)
+    \end{minted}
+
+    Any ideas what this will print?
+
+    \pause
+    The syntax for range is \texttt{range(start, stop, step)}
+    \begin{itemize}
+        \item \texttt{start} is the number to start on
+        \item \texttt{stop} is the number to stop \textit{before}
+        \item \texttt{step} is the amount to increment each time
+    \end{itemize}
+
+    Both \texttt{start} and \texttt{step} are optional and if omitted, they will
+    be assumed to be \texttt{0} and \texttt{1}, respectively.
+\end{frame}
+
+\begin{frame}[fragile]{Doing Things Many Times: \texttt{while} loops}
+    Sometimes we don't know how many times we need to run a block of code. In
+    these cases, we can use a \texttt{while} loop.
+
+    \pause
+    The syntax for a \texttt{while} loop is:
+    \begin{minted}{python}
+        while <condition>:
+            # do what is in this indented block
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Doing Things Many Times: \texttt{while} loops: Example}
+    What do you think this snippet of code will do?
+
+    \begin{minted}{python}
+        i = 0
+        while i < 10:
+            print(i)
+            i = i + 1
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Doing Things Many Times With Loops: Your Turn!}
+    \textbf{Now it's your turn!} Try to write some Python which does the
+    following (this should feel similar to what you did with the \texttt{if}
+    statement):
+
+    \begin{enumerate}
+        \item Creates a variable with a secret number of your choice.
+        \item Asks the user to guess a number.
+        \item Tells the user if their guess is above, below, or equal to the
+            secret number.
+        \item \textbf{Keeps asking the user to guess until they get the right
+            number.}
+    \end{enumerate}
+
+    \textit{Extra Credit:} Look up the documentation for the
+    \texttt{random.randint} function and see if you can make the secret number
+    random.
+\end{frame}
+
+\section{Containers for Data: Abstract Data Types}
+\begin{frame}{What is an Abstract Data Type?}
+    Often, we need to store multiple pieces of data together in a \textit{data
+    structure}. Some examples of when this would be useful are:
+
+    \begin{itemize}
+        \item Storing a list of all of the students in a class.
+        \item Storing the grades associated with each student in a class.
+    \end{itemize}
+
+    The reason they are called abstract data types is that you don't need to
+    know how they are implemented, you just need to know how they work.
+\end{frame}
+
+\begin{frame}{What is an Abstract Data Type?}
+    In Python, we have four main data structures:
+    \begin{itemize}
+        \item \textbf{Lists} --- store an \textit{ordered} set of elements that
+            \textit{can} be changed.
+        \item \textbf{Tuples} --- store an \textit{ordered} set of elements that
+            \textit{cannot} be changed.
+        \item \textbf{Sets} --- store an \textit{unordered},
+            \textit{deduplicated} set of elements that \textit{can} be changed.
+        \item \textbf{Dictionaries} --- store an unordered set of
+            mapping/associations of \textit{keys} to \textit{values}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Lists}
+    Lists store an ordered set of elements that can be changed. You can declare
+    a list \textit{literal} like this:
+
+    \begin{minted}{python}
+        [1, 2, 3]
+    \end{minted}
+
+    \pause
+    If you want to \textit{access} a specific element of the list, you can
+    \textit{index} into the list like so:
+    \begin{minted}{python}
+        my_list = [1, 2, 3]
+        print(my_list[0])
+        my_list[0] = 4
+        print(my_list)
+    \end{minted}
+    \textbf{Note:} indexes start at \texttt{0} (they are zero-indexed).
+
+    \pause
+    If you want to add to a list, you can use the \texttt{append} function:
+    \begin{minted}{python}
+        my_list = [1, 2, 3]
+        my_list.append(4)
+        print(my_list)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Tuples}
+    Tuples store an ordered set of elements that cannot be changed. You can
+    declare a tuple \textit{literal} like this:
+
+    \begin{minted}{python}
+        (1, 2, 3, 4)
+    \end{minted}
+
+    \pause
+    Like lists, you can access individual elements of the tuple in the same way
+    as a list.
+    \begin{minted}{python}
+        my_tuple = (1, 2, 3)
+        print(my_tuple[0])
+    \end{minted}
+
+    \pause
+    You cannot modify a tuple, but you can add them together (you can actually
+    do this with lists, too!):
+    \begin{minted}{python}
+        my_tuple1 = (1, 2, 3)
+        my_tuple2 = (4, 5, 6)
+        print(my_tuple1 + my_tuple2)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Sets}
+    Sets store an \textit{unordered, deduplicated} set of elements that can be
+    changed. You can declare a set \textit{literal} like this:
+
+    \begin{minted}{python}
+        {1, 2, 3, 2}
+    \end{minted}
+
+    Note this is equivalent to \texttt{\{1, 2, 3\}} because of the deduplication.
+
+    \pause
+    There are two main operations on sets: \texttt{add} and \texttt{remove}:
+    \begin{minted}{python}
+        my_set = {1, 2, 3}
+        my_set.add(4)
+        my_set.remove(1)
+        print(my_set)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Lists, Tuples, and Sets + \texttt{for} Loops}
+    Lists, Tuples, and Sets are all iterable, meaning they can be used in a
+    \texttt{for} loop:
+    \begin{minted}{python}
+        my_list = [1, 2, 3]
+        for x in my_list:
+            print(x)
+    \end{minted}
+
+    \pause
+    \textbf{Your Turn:} Try and create a list of numbers, then for each element
+    of the list, print whether that number is less than, equal to, or greater
+    than \texttt{42}.
+
+    \pause
+    Now try the same thing with a tuple and a set.
+\end{frame}
+
+\begin{frame}[fragile]{Dictionaries}
+    Dictionaries store an unordered set of mapping/associations of \textit{keys}
+    to \textit{values}. You can declare a set \textit{literal} like this:
+    \begin{minted}{python}
+        {"key": "value", 3: 2, 3: 8}
+    \end{minted}
+
+    Note this is equivalent to \texttt{\{"key": "value", 3: 8\}} because, like
+    sets, the \textit{keys} are deduplicated.
+
+    \pause
+    You can access the value associated with a key of a dictionary similar to
+    how you access an element of a list:
+    \begin{minted}{python}
+        my_dict = {"key": "value", 3: 8}
+        print(my_dict["key"])
+    \end{minted}
+
+    You can also use similar syntax to edit entries in the dictionary and add
+    new entries.
+    \begin{minted}{python}
+        my_dict = {"key": "value", 3: 8}
+        my_dict["new key"] = 42
+        my_dict["key"] = 18
+        print(my_dict)
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Dictionaries + \texttt{for} Loops}
+    Dictionaries are also iterable but most of the time what you care about
+    iterating over are either all of the keys, values, or pairs:
+    \begin{minted}{python}
+        my_dict = {"key": "value", 3: 8}
+        print(my_dict.keys())
+        print(my_dict.values())
+        print(my_dict.items())
+    \end{minted}
+
+    \begin{minted}{python}
+        for key, value in my_dict.items():
+            print(key, value)
+    \end{minted}
+
+    \pause
+    \textbf{Your Turn:} Create a dictionary containing only numeric keys and
+    values and write a \texttt{for} loop which adds the key to the value for
+    each of the pairs.
+\end{frame}
+
+\section{Functions}
+
+\begin{frame}[fragile]{What is a Function?}
+    A lot of times, we have code that we want to run multiple times, but not
+    necessarily in right in a row on the same data structure. In these cases, we
+    can use \textit{functions} to organize our code.
+
+    \pause
+    You've actually already seen functions! \texttt{print}, \texttt{input},
+    \texttt{append}, and \texttt{items} are all functions!
+
+    But we can write our own functions as well.
+\end{frame}
+
+\begin{frame}[fragile]{Defining our own Functions}
+    The syntax for defining a function is:
+    \begin{minted}{python}
+        def my_function(parameter1, parameter2, ...):
+            # do things involving the parameters
+            return something
+    \end{minted}
+
+    A few notes:
+    \begin{itemize}
+        \item You can have as many parameters as you want (including none).
+        \item You do not have to return anything. (By default, the function will
+            return \texttt{None}.)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Defining our own Functions: Example}
+    Here's a simple function which adds two numbers together:
+    \begin{minted}{python}
+        def add(a, b):
+            return a + b
+    \end{minted}
+\end{frame}
+
+\begin{frame}{Functions: Your Turn!}
+    \begin{itemize}
+        \item Create a function that takes in a list as a parameter and returns
+            the list, backwards.
+        \item Create a function that takes two tuples representing two
+            \texttt{(x, y)} coordinates and return the \textit{Cartesian
+            distance} between the two points. The formula is:
+            $$\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
+            (Look up the \texttt{math.sqrt} function.)
+    \end{itemize}
+\end{frame}
+
+\section{Classes}
+
+\begin{frame}[fragile]{Classes: The Basics}
+    There are a lot of things that you can do with classes, but for Carrier
+    Python, most of what we use them for is to organize variables and functions
+    into logical containers. Here's an example class:
+
+    \begin{minted}{python}
+        class MyClass:
+            counter = 0
+
+            def add_to_variable(self, amount):
+                self.variable = self.variable + amount
+    \end{minted}
+
+    You can then instantiate a class like so:
+    \begin{minted}{python}
+        my_object = MyClass()
+        print(my_object.counter)
+        my_object.add_to_variable(4)
+        print(my_object.counter)
+    \end{minted}
+\end{frame}
+
+% \begin{frame}{Classes: Your Turn!}
+%     \begin{itemize}
+%         \item TODO
+%     \end{itemize}
+% \end{frame}
+
+\end{document}
+% Local Variables:
+% TeX-command-extra-options: "-shell-escape"
+% End:
