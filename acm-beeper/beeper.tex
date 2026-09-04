@@ -1,0 +1,569 @@
+\documentclass{acm}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{soul}
+\usepackage{attrib}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[linesnumbered,commentsnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+\SetKwComment{tcc}{ \# }{}
+\SetKwComment{tcp}{ \# }{}
+
+\usepackage{siunitx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathreplacing,calc,arrows.meta,shapes,graphs}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+\setmainfont{Open Sans Light}
+\usefonttheme{serif}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% Math stuffs
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\lcm}{\text{lcm}}
+\newcommand{\Inn}{\text{Inn}}
+\newcommand{\Aut}{\text{Aut}}
+\newcommand{\Ker}{\text{Ker}\ }
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+\newcommand{\yournewcommand}[2]{Something #1, and #2}
+
+\newenvironment{question}[1]{\par\textbf{Question #1.}\par}{}
+
+\newcommand{\pmidg}[1]{\parbox{\widthof{#1}}{#1}}
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\newcommand{\frameoutput}[1]{\frame{\colorbox{white}{#1}}}
+
+\newcommand{\tikzmark}[1]{%
+\tikz[baseline=-0.55ex,overlay,remember picture] \node[inner sep=0pt,] (#1)
+{\vphantom{T}};
+}
+
+\newcommand{\braced}[3]{%
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [thick,decorate,decoration={brace,raise=1ex,amplitude=4pt},blue] (#2.south west-|T1.south west) -- node[anchor=west,left,xshift=-1.8ex,text=olive]{#3} (#1.north west-|T1.south west);
+    \end{tikzpicture}
+}
+
+\title{Matrix: An open network for secure, decentralized communication}
+\author{Sumner Evans}
+\date{August 31, 2021}
+\institute{Beeper}
+
+\begin{document}
+
+\begin{frame}{A bit about me}
+    \begin{itemize}
+        \item I graduated in 2018 with my bachelor's in CS from Mines.
+        \item I graduated in 2019 with my master's in CS, also from Mines.
+        \item I worked at The Trade Desk for two years right after graduating.
+        \item I currently am teaching \textit{CSCI 400 Principles of Programming
+            Languages} and I have previously taught \textit{CSCI 406 Algorithms}
+            and \textit{CSCI 564 Advanced Computer Architecture}.
+        \item I started at Beeper in July.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{A bit about you}
+    I'd like to get to know everyone a bit more and get a feel for everyone's
+    experience levels.
+    \pause
+
+    \begin{itemize}[<+->]
+        \item How many of you have taken Algorithms?
+        \item How many of you have taken Data Structures?
+        \item How many of you have taken Intro to Computer Science?
+        \item How many of you are in the ACM Matrix chat?
+    \end{itemize}
+    \pause[\thebeamerpauses]
+
+    I know you have all had a year of Zoom-class where asking questions is hard,
+    but now there are no excuses: interrupt me at any time if I use a term you
+    don't understand.
+\end{frame}
+
+\begin{frame}{Overview}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Why Matrix?}
+
+\begin{frame}{Let's talk about chat platforms\ldots}
+    Which of the following chat networks do you use/have you used?
+    \begin{multicols}{2}
+        \begin{itemize}[<+->]
+            \item SMS/MMS
+            \item iMessage
+            \item LinkedIn
+            \item Snapchat
+            \item WhatsApp
+            \item Instagram
+            \item Discord
+            \item Facebook Messenger
+            \item Hangouts
+            \item Slack
+            \item Microsoft Teams
+            \item Signal
+            \item Telegram
+            \item Wire
+        \end{itemize}
+    \end{multicols}
+    \pause[\thebeamerpauses]
+    What do all of these chat networks have in common?
+    \pause
+
+    They are \textbf{non-interoperable, and many are closed source and/or
+    unencrypted}.
+\end{frame}
+
+\begin{frame}{Why is this a problem?}
+    The \textbf{closed source} platforms are problematic because you can never
+    be sure \textit{how your data is being used}.
+    \pause
+
+    The \textbf{unencrypted} platforms are problematic because your messages are
+    not private.
+    \pause
+
+    And, because none of them are interoperable, you have to have a ton of chat
+    apps on your phone.
+\end{frame}
+
+\begin{frame}{Imagine if\ldots}
+    you could start a chat with anyone in the world, on any chat platform just
+    by searching their name?
+    \pause
+
+    And further imagine that the chat was totally secure.
+    \pause
+
+    And further imagine that you could choose what chat client you wanted to
+    use.
+\end{frame}
+
+\section{Introducing Matrix}
+
+\begin{frame}{Matrix solves all your problems}
+    Matrix is an \textbf{open} specification for \textbf{encrypted},
+    \textbf{decentralized} communication. \pause
+
+    It is also designed in such a way that it makes it easy to break down walled
+    garden communication platforms via \textbf{bridging}.
+
+    \centering
+    \visible<2>{\includegraphics[width=0.6\textwidth]{graphics/bridging.png}}
+    \tiny
+    \url{https://presents.half-shot.uk/slides/!mfikNYyXndTTDgQjAu:half-shot.uk/$F-4FHKkgjcLDJaKvw7C19NJ6BWkrk6n7GeIxK-TcxWg}
+\end{frame}
+
+\begin{frame}{A side note}
+    I first became interested in Matrix when I was the incoming Chair of ACM.
+    Robby (VC) and I tried out most of the open source chat platforms and ended
+    up landing on Matrix because it had all of these characteristics.
+\end{frame}
+
+\begin{frame}{Matrix is an \textit{open specification}}
+    Open specifications and standards are all around you. They just make
+    sense\texttrademark.
+
+    Examples:\pause
+    \begin{itemize}
+        \item Power plugs
+        \item USB
+        \item Wi-Fi
+        \item Every crypto algorithm that's any good
+    \end{itemize}
+    \pause
+
+    Open protocols allow for \textit{open development} and  \textit{clean-room
+    implementations}, they \textit{encourage competition}, and are
+    \textit{externally auditable}.
+\end{frame}
+
+\begin{frame}{Matrix is \textit{encrypted} by default*}
+    Matrix has encryption built-in.
+
+    The core of the encryption is \textbf{Olm}, which is a clone of the Signal
+    double-ratchet protocol.
+    \begin{itemize}
+        \item If a single key is compromised, the attacker cannot see past
+            messages. This is called \textbf{forward secrecy}.
+        \item Key exchanges happen often, and if an attacker misses a single key
+            exchange, they are once again locked out. This is called
+            \textbf{break-in recovery}.
+    \end{itemize}
+    \pause
+
+    You end up with 1:1 Olm ratchets between all participants in the room.
+    \pause
+
+    Those ratchets are used to share the key data for the group ratchet (called
+    Megolm) which is used to encrypt messages.
+\end{frame}
+
+\begin{frame}{Matrix is \textit{decentralized}}
+    The Matrix architecture is actually a \textit{federated} architecture.
+
+    Individual devices communicate to a \textit{homeserver} which anyone can
+    host.
+
+    The homeserver communicates with other homeservers in the federation.
+    \pause
+
+    Think of it like email. You can email somebody using Outlook from Gmail.*
+    \pause
+
+    Every server in the federation gets a copy of a room, so no one entity
+    controls the network.
+    \pause
+
+    This also means that the network is resilient to censorship, individual
+    server outages, or even wider internet outages.
+\end{frame}
+
+\begin{frame}{Matrix allows for \textit{bridges} and \textit{bots}}
+    Bridges bring external chat networks into Matrix. More on this in a moment.
+    \pause
+
+    Bots allow for automated interactions and notifications.
+\end{frame}
+
+\section{What does Beeper do?}
+
+\begin{frame}{We want to break down chat network barriers}
+    \centering
+    \includegraphics[width=0.9\textwidth]{graphics/chat_systems.png}
+
+    \scriptsize
+    \textit{I'm one of the few Instagram users who connects solely through the
+    Unix 'talk' gateway.}\\
+    \tiny
+    \url{https://xkcd.com/1810/}
+\end{frame}
+
+\begin{frame}{We do that via bridging}
+    \centering
+    \includegraphics[width=0.88\textwidth]{graphics/matrix_bridging}
+
+    \tiny
+    \url{https://twitter.com/matrixdotorg/status/841424770025545730}
+\end{frame}
+
+\begin{frame}{How is this better than self-hosting?}
+    \textbf{Convenience!}
+    \pause
+
+    We do all of the heavy lifting and managing the bridges so you don't have
+    to.
+
+    You basically pay us to keep your bridges running and up-to-date.
+    \pause
+
+    We also maintain Synapse, so you don't have to.
+    \pause
+
+    And to top it all off, we have awesome clients!
+\end{frame}
+
+\begin{frame}{Beeper clients}
+    \Huge
+    \textbf{Demo}
+\end{frame}
+
+\begin{frame}{What do I do at Beeper?}
+    I work on the bridge team creating bridges to new networks and fixing issues
+    with existing bridges.
+
+    \begin{itemize}
+        \item I built the LinkedIn bridge.
+        \item I added a couple small features to the Slack bridge.
+        \item I am currently working on improving the reliability of the Signal
+            bridge.
+    \end{itemize}
+    \pause
+
+    I also like writing bots.
+
+    \begin{itemize}
+        \item I wrote a standup bot for our asynchronous standup posts.
+        \item I'm currently writing a Chatwoot bot for helping our support team
+            manage support requests.
+    \end{itemize}
+\end{frame}
+
+\section{How does Matrix work?}
+
+\begin{frame}{Architecture}
+    Every server has a copy of the room, but how do we keep that in sync?
+    \pause
+
+    The architecture of Matrix does this in a way that ensures \textit{eventual
+    consistency}.
+    \pause
+
+    Even if the server where the room was created goes down, people can still
+    communicate.
+
+    When a broken server comes back online, it will receive all the
+    \textit{events} (messages).
+    \pause
+
+    Let's look at the animation on Matrix.org\ldots
+\end{frame}
+
+\begin{frame}[fragile]{Client-Server API}
+    The \textbf{Client-Server API} specifies how clients communicate with their
+    homeserver.
+    \pause
+    \vspace{1in}
+
+    \Huge
+    \textbf{Demo!}
+\end{frame}
+
+\begin{frame}{Federation (Server-Server) API}
+    The \textbf{Server-Server API} or \textbf{Federation API} specifies how
+    servers communicate with other servers to ensure that everyone has the same
+    room state.
+\end{frame}
+
+\begin{frame}{A bit of graph theory}
+    \begin{columns}
+    \begin{column}{0.6\textwidth}
+        \begin{itemize}[<+->]
+            \item A \textbf{graph} is a collection of \textit{nodes} connected by
+                \textit{edges}.
+            \item A \textbf{directed graph} is a graph where the edges are
+                \textit{directional} (have arrows).
+            \item An \textbf{acyclic graph} is a graph that has no cycles/loops.
+            \item A \textbf{directed acyclic graph (DAG)} is a directional graph
+                with no cycles.
+        \end{itemize}
+    \end{column}%%
+    \begin{column}{0.4\textwidth} %%
+        \only<4>{
+            \includegraphics[width=\textwidth]{graphics/dag}
+        }
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{The event DAG}
+    Matrix rooms are represented by a DAG of \textit{events} representing things
+    such as messages, joins, leaves, etc.
+    \pause
+
+    The DAG provides a \textit{partial ordering} of events in the room because
+    every event has zero or more ``parent'' events.
+    \pause
+
+    This is similar to Git where every commit has 0 or more ``parent'' commits.
+
+    \vspace{1cm}
+    {
+        \tiny
+        See \url{https://matrix.org/docs/spec/\#event-graphs}
+    }
+\end{frame}
+
+\begin{frame}{Event types}
+    There are two main event types: \textbf{message events} and \textbf{state
+    events}.
+    \pause
+
+    \textbf{Message events:} \\
+    These describe transient `once-off' activity in a room such as an instant
+    messages, VoIP call setups, file transfers, etc. They generally describe
+    communication activity.
+    \pause
+
+    \textbf{State events:} \\
+    These describe updates to a given piece of persistent information (`state')
+    related to a room, such as the room's name, topic, membership, participating
+    servers, etc. State is modelled as a lookup table of key/value pairs per
+    room, with each key being a tuple of \texttt{state\_key} and \texttt{event
+    type}. Each state event updates the value of a given key.
+
+    {
+        \tiny
+        See \url{https://matrix.org/docs/spec/\#room-structure}
+    }
+\end{frame}
+
+\section{Things that I'm excited about in Matrix}
+
+\begin{frame}{Bridges}
+    I work on the bridge team at Beeper, so I am obviously excited about the
+    possibilities there.
+    \pause
+
+    I hope that in the future, it will be a no-brainer to base all new chat
+    applications on top of Matrix.
+
+    I also hope that existing chat networks rebase on Matrix, so bridges become
+    unnecessary.
+\end{frame}
+
+\begin{frame}{Bots}
+    I'm excited about the possibilities for more interactivity bots.
+    \pause
+
+    Right now, basically only IRC-style text-based communication is possible
+    with bots.
+
+    There are MSCs for things like buttons, suggested replies, etc. which will
+    really make bots more featureful.
+\end{frame}
+
+\begin{frame}{Non-chat applications}
+    Many people are experimenting with trying to use Matrix for things other
+    than chat.
+
+    \begin{itemize}
+        \item Social media (Cerulean and Circles)
+        \item Blogs
+        \item Comment systems for blogs
+        \item Collaborative notepads
+        \item Collaborative whiteboards
+    \end{itemize}
+
+    All of these applications take advantage of the fact that at the end of the
+    day, Matrix is just a distributed DAG.
+\end{frame}
+
+\begin{frame}{Client features}
+    I'm excited about a bunch of features that are coming soon\texttrademark\ 
+    including:
+
+    \begin{itemize}
+        \item Spaces and the many features that it will bring that will help
+            facilitate community management
+        \item Threads
+        \item Extensible profiles (profiles as rooms)
+    \end{itemize}
+\end{frame}
+
+\section{How to get involved with Matrix}
+
+\begin{frame}{Use it!}
+    \begin{itemize}[<+->]
+        \item Enable labs and show hidden events and try out the other upcoming
+            features.
+
+        \item You can run your own homeserver. Synapse is the most featureful
+            server, and is relatively easy to set up.
+
+            You can register a domain name for free for a year with the GitHub
+            Student Pack.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Get involved right here at Mines}
+    You can get involved in Matrix right here at ACM!
+
+    \begin{itemize}
+        \item You can join the ACM chat!
+        \item If you are interested in building non-chat applications on top of
+            Matrix, consider joining Visplay.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Follow the news}
+    The Matrix community is very open. Most of the development happens in the
+    open, and you can join development and support chat rooms.
+
+    Here are a few to get you started:
+    \begin{itemize}
+        \item Matrix News: \texttt{\#matrix-news:matrix.org}
+        \item This Week in Matrix (TWIM): \texttt{\#twim:matrix.org}
+        \item Matrix Community Space: \texttt{\#community:matrix.org} (and
+            subspaces)
+    \end{itemize}
+
+    Most Matrix projects also have their own chat room.
+\end{frame}
+
+\begin{frame}{Contribute documentation or code}
+    There are many projects which need more documentation or code. The Matrix
+    Community space and its subspaces are a good place to find projects.
+    \begin{itemize}[<+->]
+        \item There are many existing projects that you can contribute to in the
+            Matrix ecosystem: Element client codebases, Synapse, Dendrite, a
+            bunch of bots and bridges.
+        \item You can even contribute to the Matrix spec itself via MSCs.
+        \item Write a new bridge (Beeper may even pay you to do that, contact
+            Eric \texttt{@eric:beeper.com})
+        \item Write bots
+        \item Consider joining Beeper! Contact Eric (\texttt{@eric:beeper.com})
+            if you are interested.
+    \end{itemize}
+\end{frame}
+
+\section{A few general tips for everyone}
+
+\begin{frame}{Do something}
+    Don't be paralysed because you don't know what you want to do. \textbf{Just
+    do something.}
+
+    If you don't know what interests you, try things until you find something
+    that you are sufficiently motivated by.
+
+    If you don't like what you are doing, you can always get a different job.
+\end{frame}
+
+\begin{frame}{Getting into open source}
+    If you want to become and open source developer, start by being a good open
+    source project user.
+    \pause
+
+    Then start reporting issues and submitting documentation fixes.
+    \pause
+
+    Then maybe you can even start answering questions that people ask on chat
+    rooms or GitHub issues associated with the project.
+    \pause
+
+    Then make small code fixes.
+    \pause
+
+    Anyone can contribute to open source, you just have to have realistic
+    expectations about what that means.
+\end{frame}
+
+\begin{frame}[standout]
+    \Huge
+    Questions?
+\end{frame}
+
+\end{document}
+% Local Variables:
+% TeX-command-extra-options: "-shell-escape"
+% End:
