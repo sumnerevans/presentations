@@ -1,0 +1,72 @@
+I mentioned this as a comment on #778. The crash occurs rarely when the "Trigger Capture" or "Queue Capture" buttons are pressed, but PrtScrn and F12 always segfault. The "Collect Callstacks" option does not change anything.
+
+ I am running Arch Linux and using the Aur package (RenderDoc v0.91) and my laptop's onboard graphics:
+```
+00:01.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Richland [Radeon HD 8450G] (prog-if 00 [VGA controller])
+	Subsystem: Lenovo Richland [Radeon HD 8450G]
+	Flags: bus master, fast devsel, latency 0, IRQ 35
+	Memory at e0000000 (32-bit, prefetchable) [size=256M]
+	I/O ports at 3000 [size=256]
+	Memory at f0300000 (32-bit, non-prefetchable) [size=256K]
+	[virtual] Expansion ROM at 000c0000 [disabled] [size=128K]
+	Capabilities: <access denied>
+	Kernel driver in use: radeon
+	Kernel modules: radeon
+```
+
+The capture still works (saves the file), the application remains running, and I can capture with PrtScn/F12 again. All that happens is qrenderdoc crashes. I can restart qrenderdoc and then open the saved capture(s) with no issue. Here is the gdb output (no debug symbols 😞):
+```
+GNU gdb (GDB) 8.0.1
+This GDB was configured as "x86_64-pc-linux-gnu".
+(gdb) run
+Starting program: /usr/bin/qrenderdoc 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+Log     - QRenderDoc initialising.
+[New Thread 0x7fffe8e5a700 (LWP 18628)]
+[New Thread 0x7fffe2399700 (LWP 18629)]
+[New Thread 0x7fffe1909700 (LWP 18630)]
+[New Thread 0x7fffe1108700 (LWP 18631)]
+Warning - adbExePath not set, attempting to call 'adb' in working env
+Log     - COMMAND: adb devices
+[Thread 0x7fffe1108700 (LWP 18631) exited]
+[New Thread 0x7fffe1108700 (LWP 18632)]
+[New Thread 0x7fffccbfd700 (LWP 18633)]
+[New Thread 0x7fffc7c3a700 (LWP 18641)]
+[Thread 0x7fffc7c3a700 (LWP 18641) exited]
+[New Thread 0x7fffc7c3a700 (LWP 18644)]
+Version: OpenGL 4.1
+[Thread 0x7fffc7c3a700 (LWP 18644) exited]
+[New Thread 0x7fffc7c3a700 (LWP 18650)]
+Log     - Got remote handshake: A3_linux (OpenGL) [18596]
+Log     - Got a new capture: 0 (time 1510252056) 45647 byte thumbnail
+
+Thread 1 "qrenderdoc" received signal SIGSEGV, Segmentation fault.
+0x00007ffff41be5a1 in __memcpy_ssse3 () from /usr/bin/../lib/libc.so.6
+(gdb) backtrace
+#0  0x00007ffff41be5a1 in __memcpy_ssse3 () from /usr/bin/../lib/libc.so.6
+#1  0x00007ffff5a0787f in QImage::copy(QRect const&) const () from /usr/bin/../lib/libQt5Gui.so.5
+#2  0x00005555558b4289 in ?? ()
+#3  0x00005555558b0252 in ?? ()
+#4  0x00005555558b17ba in ?? ()
+#5  0x00005555558b32d9 in ?? ()
+#6  0x0000555555794878 in ?? ()
+#7  0x0000555555c13f8e in ?? ()
+#8  0x0000555555c13bef in ?? ()
+#9  0x00007ffff5493662 in QObject::event(QEvent*) () from /usr/bin/../lib/libQt5Core.so.5
+#10 0x00007ffff6384f2c in QApplicationPrivate::notify_helper(QObject*, QEvent*) () from /usr/bin/../lib/libQt5Widgets.so.5
+#11 0x00007ffff638ca06 in QApplication::notify(QObject*, QEvent*) () from /usr/bin/../lib/libQt5Widgets.so.5
+#12 0x00007ffff5463060 in QCoreApplication::notifyInternal2(QObject*, QEvent*) () from /usr/bin/../lib/libQt5Core.so.5
+#13 0x00007ffff54658b6 in QCoreApplicationPrivate::sendPostedEvents(QObject*, int, QThreadData*) () from /usr/bin/../lib/libQt5Core.so.5
+#14 0x00007ffff54be6e4 in ?? () from /usr/bin/../lib/libQt5Core.so.5
+#15 0x00007ffff1c4a270 in g_main_context_dispatch () from /usr/bin/../lib/libglib-2.0.so.0
+#16 0x00007ffff1c4bf69 in ?? () from /usr/bin/../lib/libglib-2.0.so.0
+#17 0x00007ffff1c4bfae in g_main_context_iteration () from /usr/bin/../lib/libglib-2.0.so.0
+#18 0x00007ffff54bdcd1 in QEventDispatcherGlib::processEvents(QFlags<QEventLoop::ProcessEventsFlag>) () from /usr/bin/../lib/libQt5Core.so.5
+#19 0x0000555555788ab2 in ?? ()
+#20 0x00007ffff40a9f6a in __libc_start_main () from /usr/bin/../lib/libc.so.6
+#21 0x0000555555617d0a in ?? ()
+```
+
+I have tested this issue with several OpenGL applications present on my system. Attached are the capture and log files from one of them.
+[RenderDoc_2017.11.09_11.52.22.log](https://github.com/baldurk/renderdoc/files/1458865/RenderDoc_2017.11.09_11.52.22.log)
