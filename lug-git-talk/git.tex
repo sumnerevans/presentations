@@ -1,0 +1,406 @@
+\documentclass{lug}
+
+\usepackage{csquotes}
+\MakeOuterQuote{"}
+\usepackage{listings}
+
+\title{Git}
+\author{Sumner Evans}
+
+\begin{document}
+
+\section{Introduction}
+
+\begin{frame}
+    \frametitle{What is Git?}
+
+    \begin{itemize}[<+->]
+        \item Git is a system which tracks changes made to a code base.
+        \item Git was created by Linus Torvalds to help facilitate Linux kernel
+            development.
+        \item Linus's motto when he built Git was to take Concurrent Version
+            System (CVS) as an example of what \textit{not} to do and if in
+            doubt, make the opposite decision.  \footnotemark
+    \end{itemize}
+
+    \uncover<3>{\footnotetext[1]{https://en.wikipedia.org/wiki/Git}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why use Version Control? I}
+
+    Example Scenario:
+
+    \begin{enumerate}[<+->]
+        \item You start a project called "my-proj" and write a ton of code.
+        \item You finally get it to (kinda) work.
+        \item You decide to make a copy of "my-proj" for backup purposes.
+        \item You continue development on "my-proj" but then screw something up
+            really bad.
+        \item You decide to revert back to your copy.
+        \item Then you realize your copy doesn't have a bug fix that you
+            actually wanted.
+        \item You then proceed to manually compare the files in the backup to
+            those in your new code and figure out what you still want to have.
+    \end{enumerate}
+
+    \uncover<8>{This is terrible.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why use Version Control? II}
+
+    Another Scenario:
+
+    \begin{enumerate}[<+->]
+        \item You start working on a project with a partner.
+        \item You write a bunch of code.
+        \item You email the code in a .zip file, then go home for the weekend.
+        \item You and your partner had decided to work on two separate tasks
+            over the weekend so you make some changes to the code and your
+            partner makes some changes to the code.
+        \item You come together and start copying files. Then you realize you
+            both modified \texttt{main()}.
+        \item You then manually determine what changed in both files and
+            reconcile them.
+    \end{enumerate}
+
+    \uncover<7>{This is awful.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why use Version Control? III}
+
+    How Version Control Systems (VCS) solve this:
+
+    \begin{itemize}[<+->]
+        \item VCS keeps track of \textit{revisions}, changes in the code in
+            entities called \textit{changesets} or \textit{commits}.
+        \item Most VCS allow version merging. That means multiple people can be
+            working on the same file and resolve discrepancies later. Git is
+            very elegant in handling merge conflicts such as this.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why use Git?}
+
+    Git is a VCS so it solves all of the issues I've described. So why use Git
+    over some other VCS?\footnotemark
+
+    \begin{itemize}[<+->]
+        \item It's a \textit{distributed} VCS. That means that you have a full
+            copy of the code and every change ever made by anyone to that code
+            on your local machine. A beneficial side effect of this is that you
+            can work offline.
+        \item It's faster.
+        \item Git rarely fully deletes anything, this is good because you can
+            undo most actions.
+        \item Everyone else is using it.
+    \end{itemize}
+
+    \footnotetext[2]{List inspired by
+    \url{https://www.git-tower.com/blog/8-reasons-for-switching-to-git}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{How to Get Git}
+
+    Git is awesome! How do I get it? \textbf{Good news: Git is cross platform.}
+
+    \begin{itemize}
+        \item \textbf{Linux:} Install the \texttt{git} package using your
+            distribution's package manager
+        \item \textbf{OS X:} I recommend using Homebrew: \texttt{brew install git}
+            (\url{http://brew.sh/})
+        \item \textbf{Windows:} Download the installer from \url{https://git-scm.com/}
+    \end{itemize}
+
+    If you need a GUI, check out SourceTree or GitKraken.
+
+    You should also setup SSH which is extremely easy, but I will not cover that
+    here as this is a talk about Git not SSH.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Hot to use Git (locally)}
+
+    \begin{itemize}
+        \item Initialize (\texttt{git init}): Initializes a Git
+            \textit{repository} on your local machine in the current
+            \textit{working directory}.
+        \item Add (\texttt{git add}): Marks files to include in the next
+            \textit{commit}, an entity which stores the state of the repository
+            at a given time.
+        \item Reset (\texttt{git reset}): Opposite of \texttt{add}; marks the
+            file as not included in the next commit.
+        \item Commit (\texttt{git commit}): Creates a commit.
+        \item Log (\texttt{git log}): Shows the history of your repository.
+        \item Diff (\texttt{git diff [file]}): Determines the difference between
+            the file's current state and its state at the last commit.
+        \item Git ignore (modify the \texttt{.gitignore} file): Any file that
+            matches one of the patterns in \texttt{.gitignore} will not be
+            tracked by Git.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{How to use Git with a remote}
+
+    \begin{itemize}
+        \item Add Remote (\texttt{git remote add [name] [url]}): Adds a
+            \textit{remote}, a version of the repository hosted externally from
+            your local machine. Most likely on something like Github or an
+            company's internal network.
+        \item Push (\texttt{git push -u origin master}): Pushes all changes on
+            the given branch to the remote.
+        \item Clone (\texttt{git clone}): Copies the entire repository to the
+            location.
+        \item Fetch (\texttt{git fetch}): Retrieves changes from the remote.
+        \item Merge (\texttt{git merge}): Merges a branch into another branch.
+            (More on branches later, but in this case, we are merging the
+            \texttt{origin/master} into our local \texttt{master} branch.)
+        \item Pull (\texttt{git pull}): Retrieves any new changes from the
+            remote and merges them with your local changes.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Undoing Things}
+
+    \begin{itemize}
+        \item Undo the last $n$ commits (given that you haven't pushed them yet)
+            \texttt{git reset --hard HEAD\textasciitilde n}
+        \item Undo the $n^{th}$ to last commit by creating a new commit that
+            reverts all of the changes \texttt{git revert HEAD\textasciitilde n}
+        \item Somebody's done it before. Just Google it.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Merging Changes I}
+
+    What happens if multiple developers make changes to the same file? This will
+    cause \textit{merge conflicts}.\\
+
+    There are plenty of tools which you can use to \textit{resolve} such
+    conflicts. None of them are that good because merge conflicts are just
+    terrible in general.\\
+
+    Play around with a bunch of them and see which one you like best. Here are a
+    few to get you started: \texttt{Meld}, \texttt{KDiff3}, and
+    \texttt{vimdiff}.\\
+\end{frame}
+
+\begin{frame}
+    \frametitle{Merging Changes II}
+
+    Invoking the \textit{mergetool}: use \texttt{git mergetool}.\\
+
+    For each \textit{conflict}, you can choose to take their version, your
+    version, a combination of the two or neither.\\
+
+    Most UIs will give you three panes: one for the \textit{remote} version of
+    the file, one for the \textit{local} version of the file and one for the
+    merged version of the file.
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches I}
+
+    Branches allow you to separate develop a given functionality without
+    affecting the original code base.\\
+
+    For example, if you have an established product and you want to add a
+    feature but you are uncertain about its viability, you can create a branch
+    and build a prototype on that branch. If it fails, you can delete the branch
+    and never see it again or if it works, you can \textit{merge} the branch
+    back into \texttt{master}.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches\footnotemark II}
+    Branches can be thought of as \textit{bookmarks} pointing to a specific
+    changeset.
+
+    \begin{center}
+        \includegraphics[width=60mm]{graphics/branching1.png}
+    \end{center}
+
+    \textit{Note, \texttt{HEAD} is pointer to the current branch.}
+
+    \footnotetext[3]{Info in the rest of the \textit{Branches} section is mainly
+    from \url{https://git-scm.com/book/en/v1/Git-Branching-What-a-Branch-Is}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches III}
+    To switch branches, use \texttt{git checkout [branch]}. This moves
+    \texttt{HEAD} to point to your new branch.
+
+    \begin{center}
+        \includegraphics[width=65mm]{graphics/branching2.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches IV}
+    If you commit something to your new branch, the branch pointer moves to the
+    new commit. The pointer to \texttt{master} will not move.
+
+    \begin{center}
+        \includegraphics[width=65mm]{graphics/branching3.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches V}
+    Of course, you can always switch back to \texttt{master} using \texttt{git
+    checkout master}.
+
+    \begin{center}
+        \includegraphics[width=65mm]{graphics/branching4.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches VI}
+    If you make a commit on the master branch, the \texttt{master} pointer moves
+    to that new commit.  At this point, the branch histories have diverged.
+
+    \begin{center}
+        \includegraphics[width=65mm]{graphics/branching5.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branches VII: How to actually do it}
+
+    \begin{itemize}
+        \item \textbf{Create a Branch:} \texttt{git branch [branch\_name]}
+        \item \textbf{Switch to a branch:} \texttt{git checkout [branch\_name]}
+        \item \textbf{Create a new branch and switch to it:}\\ \texttt{git checkout -b [branch\_name]}
+        \item \textbf{List branches:} \texttt{git branch}
+        \item \textbf{Push branch to remote:} \texttt{git push -u [remote\_name] [branch\_name]}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Merging Changes: Branch Edition}
+    If you want changes from a different branch in your current branch, you can use \texttt{git
+    merge [other branch]}.\\
+
+    When you merge changes from another branch, one of two things will happen\footnotemark:
+
+    \begin{enumerate}
+        \item Your branch will be fast-forwarded to the other branch.\\
+            This means that there are no changes in your current branch that are not in the other
+            branch.
+        \item A merge commit will be created and your branch pointer will be updated to point to
+            this commit.\\
+            This happens when there are changes in the current branch that are not in the other
+            branch.
+    \end{enumerate}
+
+    \footnotetext[4]{These are the only ones I can thing of off the top of my head. You can force
+    either of these functionalities with their respective command line options.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Branch and Development Workflow}
+
+    Branches are extremely scalable so you can ignore them, or use them for everything, it's your
+    choice.\\
+
+    One methodology used by companies in the industry is \texttt{Git Flow}. This is a system
+    whereby new branches are created for every bugfix, new feature, release, and hotfix. If you want
+    to learn more about it, look at this website:
+    \url{http://nvie.com/posts/a-successful-git-branching-model/}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Random Stuff: Stashing}
+
+    When you have changes in your working directory, merges and switching branches (sometimes)
+    doesn't work. You have two main options here:
+
+    \begin{enumerate}
+        \item Commit your changes. If you can do this, you should.
+        \item Occasionally you just don't want to commit. In this case, you will want to
+            \textit{stash} your changes using\\ \texttt{git stash [save [stash\_name]]}.
+        \item To un-stash, use \texttt{git stash pop}. You may have to resolve merge conflicts.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Random Stuff: Submodules}
+
+    \textbf{What is a submodule?} It is literally a repository inside of another repository.\\
+
+    \textbf{Why is this useful?} If you have a custom library shared between many projects, you can
+    place that library in a standalone Git repository. Then you can add it as a submodule to your
+    products via \texttt{git submodule add [clone\_url]}.
+
+    The submodule is its own repository so it can be contributed to independently, but it can also
+    be modified and contributed to as a submodule.
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Random Stuff: Rebasing}
+
+    \textbf{What is it good for?} If you want to keep your graph clean, you can use rebasing to
+    avoid merge commits.\\
+
+    \textbf{Why would you use this?} I don't know. I never have and I normally want to see all of
+    the changes in a graph, but it's a thing that you can do in Git and if you want to learn more,
+    read the docs.
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Random Stuff: Aliases}
+
+    As one would expect from something designed and built by Linus Torvalds, Git supports the
+    concept of \textit{aliasing} one git command to another name.\\
+
+    For example, you might want to alias \texttt{checkout} to \texttt{co}. This particular alias can
+    be achieved using \\ \texttt{git config --global alias.co checkout}.\\
+
+    Now you can invoke \texttt{git checkout} using \texttt{git co}.\\
+
+    Another option is using your shell's alias functionality. This is often more powerful, but that
+    isn't part of this talk.
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Random Stuff: Resources/Tips}
+
+    I obviously was unable to tell you about everything you can do with Git. I've really only
+    scratched the surface.
+
+    \begin{itemize}
+        \item \texttt{man git *}: The man pages on Git are good. Use them as your first line of
+            defense.
+        \item \texttt{git-scm.com/book/en/v2}: A huge resource about how to do everything Git.
+        \item \texttt{gitignore.io}: Generates a \texttt{.gitignore} file for a given project type,
+            OS, and IDE.
+        \item \texttt{git reset --hard HEAD}: Undoes all changes since the last commit.
+        \item \texttt{git diff HEAD:file1 file2}: Shows the difference between \texttt{file1} and
+            \texttt{file2}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Where to Go from Here?}
+    \begin{itemize}[<+->]
+        \item If you haven't ever used Git, start by using it locally and with Github.
+        \item If you know the basics, start exploring branches. Learn about them and find a flow
+            which works best for you.
+        \item If you know most things about Git, just keep using it. Try and start remembering how
+            to do certain things that you find yourself often Googleing for. 
+    \end{itemize}
+    Become the person everyone asks for Git advice. It's used in the industry, so many companies
+    will want to see knowledge of this tool.
+\end{frame}
+
+\end{document}

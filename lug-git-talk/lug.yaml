@@ -1,0 +1,8 @@
+Title: "Git"
+Description: >
+        A presentation covering a bunch of Git
+Date: 2016-09-22
+Thumbnail: git.png
+Files:
+        SlidesPDF: git.pdf
+        LaTeX: git.tex
