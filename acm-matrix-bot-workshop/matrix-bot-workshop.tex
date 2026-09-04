@@ -1,0 +1,295 @@
+\documentclass{acm}
+
+\usepackage{fontawesome}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{soul}
+\usepackage{attrib}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[linesnumbered,commentsnumbered,ruled,vlined]{algorithm2e}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+\SetKwComment{tcc}{ \# }{}
+\SetKwComment{tcp}{ \# }{}
+
+\usepackage{siunitx}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{decorations.pathreplacing,calc,arrows.meta,shapes,graphs}
+
+\AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+\setmainfont{Open Sans Light}
+\usefonttheme{serif}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% Math stuffs
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\lcm}{\text{lcm}}
+\newcommand{\Inn}{\text{Inn}}
+\newcommand{\Aut}{\text{Aut}}
+\newcommand{\Ker}{\text{Ker}\ }
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+
+\newcommand{\yournewcommand}[2]{Something #1, and #2}
+
+\newenvironment{question}[1]{\par\textbf{Question #1.}\par}{}
+
+\newcommand{\pmidg}[1]{\parbox{\widthof{#1}}{#1}}
+\newcommand{\splitslide}[4]{
+    \noindent
+    \begin{minipage}{#1 \textwidth - #2 }
+        #3
+    \end{minipage}%
+    \hspace{ \dimexpr #2 * 2 \relax }%
+    \begin{minipage}{\textwidth - #1 \textwidth - #2 }
+        #4
+    \end{minipage}
+}
+
+\newcommand{\frameoutput}[1]{\frame{\colorbox{white}{#1}}}
+
+\newcommand{\tikzmark}[1]{%
+\tikz[baseline=-0.55ex,overlay,remember picture] \node[inner sep=0pt,] (#1)
+{\vphantom{T}};
+}
+
+\newcommand{\braced}[3]{%
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [thick,decorate,decoration={brace,raise=1ex,amplitude=4pt},blue] (#2.south west-|T1.south west) -- node[anchor=west,left,xshift=-1.8ex,text=olive]{#3} (#1.north west-|T1.south west);
+    \end{tikzpicture}
+}
+
+\title{Matrix Bot Workshop}
+\author{Sumner Evans and Robby Zampino}
+\date{March 1, 2022}
+
+\begin{document}
+
+\begin{frame}{A bit about us}
+    \begin{itemize}
+        \item Sumner
+            \begin{itemize}
+                \item Graduated from Mines in 2019 with a master's in CS.
+                \item Work at Beeper, a company that is building a Matrix-based
+                    chat app.
+                \item Teaching \textit{CSCI 406 Algorithms} and previously
+                    \textit{CSCI 400} and \textit{CSCI 564}.
+            \end{itemize}
+
+        \item Robby
+            \begin{itemize}
+                \item Graduated from Mines in 2019 with a bachelor's in EE and
+                    minor in CS.
+              \item Founder and admin of ohea.xyz, an internet collective
+                    (ask me if you want an ohea.xyz Matrix account).
+            \end{itemize}
+    \end{itemize}
+
+    We became interested in Matrix when we were looking for an open source chat
+    platform for ACM!
+\end{frame}
+
+\begin{frame}{Overview}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Introducing Matrix}
+
+\begin{frame}{What is Matrix?}
+    Matrix is an \textbf{open} specification for \textbf{encrypted},
+    \textbf{decentralized} communication.
+\end{frame}
+
+\begin{frame}{Matrix is an \textit{open specification}}
+    Open specifications and standards are all around you. They just make
+    sense\texttrademark.
+
+    Examples:\pause
+    \begin{itemize}
+        \item Power plugs
+        \item USB
+        \item Wi-Fi
+        \item Every crypto algorithm that's any good
+    \end{itemize}
+    \pause
+
+    Open protocols allow for \textit{open development} and  \textit{clean-room
+    implementations}, they \textit{encourage competition}, and are
+    \textit{externally auditable}.
+\end{frame}
+
+\begin{frame}{Matrix is \textit{encrypted} by default*}
+    Matrix has encryption built-in.
+
+    The core of the encryption is \textbf{Olm}, which is a clone of the Signal
+    double-ratchet protocol.
+    \begin{itemize}
+        \item If a single key is compromised, the attacker cannot see past
+            messages. This is called \textbf{forward secrecy}.
+        \item Key exchanges happen often, and if an attacker misses a single key
+            exchange, they are once again locked out. This is called
+            \textbf{break-in recovery}.
+    \end{itemize}
+    \pause
+
+    You end up with 1:1 Olm ratchets between all participants in the room.
+    \pause
+
+    Those ratchets are used to share the key data for the group ratchet (called
+    Megolm) which is used to encrypt messages.
+\end{frame}
+
+\begin{frame}{Matrix is \textit{decentralized}}
+    The Matrix architecture is actually a \textit{federated} architecture.
+
+    Individual devices communicate to a \textit{homeserver} which anyone can
+    host.
+
+    The homeserver communicates with other homeservers in the federation.
+    \pause
+
+    Think of it like email. You can email somebody using Outlook from Gmail.*
+    \pause
+
+    Every server in the federation gets a copy of a room, so no one entity
+    controls the network.
+    \pause
+
+    This also means that the network is resilient to censorship, individual
+    server outages, or even wider internet outages.
+\end{frame}
+
+\begin{frame}{Matrix allows for \textit{bridges} and \textit{bots}}
+    Bridges bring external chat networks into Matrix. (Sumner gave a talk about
+    these earlier in the year.)
+    \pause
+
+    Bots allow for automated interactions and notifications. This is the focus
+    of this workshop.
+\end{frame}
+
+\section{A brief overview of how Matrix works}
+
+\begin{frame}{Two APIs}
+    The \textbf{Client-Server API} specifies how clients communicate with their
+    homeserver.
+
+    This is the one we care about. \pause
+
+    The \textbf{Server-Server API} or \textbf{Federation API} specifies how
+    servers communicate with other servers to ensure that everyone has the same
+    room state.
+\end{frame}
+
+\begin{frame}{Everything is an \textbf{event}}
+    Everything* in Matrix is an event or a room. There are two main event types:
+    \textbf{message events} and \textbf{state events}.
+    \pause
+
+    \textbf{Message events:} \\
+    These describe transient `once-off' activities in a room such as an instant
+    message, VoIP call setup, file transfer, etc. They generally describe
+    communication activity.
+    \pause
+
+    \textbf{State events:} \\
+    These describe updates to a given piece of persistent information (`state')
+    related to a room, such as the room's name, topic, membership, participating
+    servers, etc. State is modelled as a lookup table of key/value pairs per
+    room, with each key being a tuple of \texttt{state\_key} and \texttt{event
+    type}. Each state event updates the value of a given key.
+
+    {
+        \tiny
+        See \url{https://matrix.org/docs/spec/\#room-structure}
+    }
+\end{frame}
+
+\section{Writing a Matrix Bot}
+
+\begin{frame}{Maubot}
+    We will be showing you how to use Maubot, a Matrix bot framework by Tulir
+    (one of Sumner's coworkers).
+
+    Maubot is a Python bot framework. It provides nice utilities on top of the
+    \texttt{mautrix-python} library. \pause
+
+    \textbf{Admin Panel:} We have set up a maubot instance here:
+
+    \begin{center}
+        \Large
+        \url{https://argon.ohea.xyz/_matrix/maubot/}
+    \end{center}
+
+    Username: \texttt{demo} \\
+    Password: \texttt{matrixiscool}
+\end{frame}
+
+\begin{frame}[fragile]{General bot-writing workflow}
+    \textbf{Documentation:}
+    \url{https://docs.mau.fi/maubot/dev/getting-started.html}
+
+    \bigskip
+
+    \textbf{Install maubot} on your local machine:
+    \begin{minted}{shell}
+    pip3 install --user maubot
+    \end{minted}
+
+    \textbf{Writing your bot:}
+    \begin{itemize}
+        \item Run \texttt{mbc init} for interactive plugin creation.
+        \item Run \texttt{mbc login} to connect to the maubot instance.
+        \item After you write your code, upload it to the server with: \\
+            \texttt{mbc build --upload}
+        \item Create a user for a client: \\
+            \texttt{mbc auth --register --homeserver argon.ohea.xyz --server argon}
+        \item Create a client and instance on the Maubot Manager.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[standout]
+    \Huge
+    Example: Echobot
+\end{frame}
+
+\begin{frame}[standout]
+    \Huge
+    Example: Firefighter bot
+\end{frame}
+
+\begin{frame}{Bot Ideas}
+    \textbf{Now it's your turn!} We recommend you start with something small (an
+    existing bot for example), then build up from there.
+
+    \begin{itemize}
+        \item Try writing a cooler echobot or a better reaction bot.
+        \item A bot that sends back ASCII-art of the given word or phrase.
+        \item A bot that applies a filter to images sent in a room.
+        \item A 20 questions bot.
+        \item A dice roll bot
+        \item Welcome bot that says hi to new users.
+        \item Upvote/downvote tracker bot that tracks the number of thumbs up
+            and thumbs down emojis that each user gets.
+        \item Any other ideas?
+    \end{itemize}
+\end{frame}
+
+\end{document}
+% Local Variables:
+% TeX-command-extra-options: "-shell-escape"
+% End:
