@@ -1,0 +1,450 @@
+\documentclass{lug}
+
+\usepackage{csquotes}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{lmodern}
+\usepackage[ampersand]{easylist}
+\usepackage{amssymb}
+
+\setbeamerfont{footnote}{size=\tiny}
+\lstset{
+    basicstyle=\small,
+    breaklines=true
+}
+
+\title{JavaScript Crash Course}
+\author{Sumner Evans and Sam Sartor}
+
+\begin{document}
+
+\begin{frame}
+    \frametitle{JavaScript is \textbf{\textit{NOT}} Java \footnotemark[1]}
+
+    \begin{itemize}[<+->]
+        \item JavaScript was written was created in 10 days in May 1995 by Brendan Eich.
+        \item JavaScript was originally called Mocha and was renamed to LiveScript before being
+            renamed again to JavaScript.
+        \item Why \textbf{Java}Script? Because Java happened to be popular then (that was before
+            people realized how much Java sucks in a browser) and JavaScript looks syntactically
+            similar at a glance.
+        \item JavaScript is standardized\footnotemark[2] by Ecma International and there have been a
+            number of ECMAScript versions. The latest is ECMAScript 6, but it is not fully supported
+            by any browsers, including Firefox which only has partial support.
+    \end{itemize}
+
+    \footnotetext[1]{Lots of this slide's information is from:
+    \url{https://www.w3.org/community/webed/wiki/A_Short_History_of_JavaScript}}
+    \uncover<4>{\footnotetext[2]{JavaScript standards aren't actually that standard.}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Objects \& Primitives}
+
+    \begin{itemize}[<+->]
+        \item Everything is either a primitive or an object.
+        \item Objects are ALWAYS passed by reference
+        \item Primitives are ALWAYS passed by value
+        \item Objects in JavaScript are mutable keyed collections/dictionaries.
+        \item JavaScript is \textit{pseudoclassical}.
+        \item JavaScript uses \textit{prototypes} for inheritance.
+        \item There is no such thing as a \textit{class} in JavaScript.\footnotemark[1]
+    \end{itemize}
+
+    \footnotetext[1]{ECMAScript 6 added support for classes, but JavaScript classes are just
+    wrappers around the underlying prototype-based structure.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Primitives: Types\footnotemark[1]}
+
+    JavaScript has six primitive types:
+
+    \begin{itemize}
+        \item Boolean
+        \item Null
+        \item Undefined (yes, this is a type)
+        \item Number (can be a number between $-(2^{53} - 1)$ and $2^{53} - 1$, \texttt{NaN},
+            \texttt{-Infinity}, or \texttt{Infinity}).
+        \item String (single or double quotes declares a string literal\footnotemark[2])
+        \item Symbol (new in ECMAScript 6)
+    \end{itemize}
+
+    \footnotetext[1]{Info on this slide from:
+    \url{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures}}
+    \footnotetext[2]{Single quotes are recommended by Douglas Crockford because HTML normally uses
+        double quotes and to avoid conflicts when manipulating DOM objects, single quotes should be
+    used.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Objects: Inheritance and the Prototype Chain}
+
+    \begin{itemize}[<+->]
+        \item Every JavaScript object is linked to a \textit{prototype}. If a member is not found in
+            an object (i.e. if \texttt{obj.foobar == undefined}) then the prototype is searched. It
+            defines a sort of ``default'' set of values for the object.
+
+        \item ``Empty'' objects start with \texttt{Object.prototype} defined as their prototype.
+
+        \item You can set the prototype of an object to another object (or to \texttt{undefined}) by
+            calling \texttt{myObj.prototype = otherObj;}
+
+        \item Since the prototype of an object is just another object, it too can have a prototype.
+            Hence the prototype \textit{chain}. When you access a property of an object, the whole
+            prototype chain is searched for it.
+
+        \item The prototype relationship is a dynamic relationship. If a property is added to the
+            prototype, it is automatically visible to all objects based on that prototype.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Objects: Syntax}
+
+    \begin{minted}{javascript}
+    var myObj = { // this is an object literal
+        a: 3,
+        'b': 'JavaScript',
+        'is-awesome?': true,
+        doSomething: function () {
+            console.log(this.a); // 3
+            console.log(a); // error
+        }, // trailing commas are allowed
+    };
+    myObj.doSomething();
+    console.log(myObj.b, myObj['is-awesome?']);
+    \end{minted}
+
+    \textbf{Output:}
+    \begin{minted}{text}
+    3
+    error: a is undefined
+    JavaScript true
+    \end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Objects: Arrays}
+
+    JavaScript arrays are basically vectors (and are also objects, remember?).
+
+    \begin{minted}{javascript}
+    var arr = [1, 'a', {}, [], true];
+    arr[0] = 'not a number';
+    arr.push('this is basically a vector');
+    console.log(arr);
+    \end{minted}
+
+    \textbf{Output:}
+    \begin{minted}{text}
+    [ 'not a number', 'a', {}, [], true, 'this is basically a vector' ]
+    \end{minted}
+
+    \textit{Note that the elements of an array do not have to be the same type.}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Variables}
+
+    JavaScript is an \textbf{untyped} language. I don't know what that means and I don't
+    think that Brendan did either when he wrote the language.\\
+
+    Variables are declared using the \texttt{var} keyword\footnotemark[1]. \\
+
+    \textbf{Examples:}
+
+    \begin{itemize}
+        \item \texttt{var name;} - creates variable \texttt{name} of type \texttt{undefined}.
+        \item \texttt{var name = `Sumner';} - string literal
+        \item \texttt{var age = 18;} - declaring a number literal
+        \item \texttt{var hasFriends = false;} - declaring a boolean
+        \item \texttt{var significantOther = null;}
+    \end{itemize}
+
+    \footnotetext[1]{Sometimes you don't need to use \texttt{var} as I have described above.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Functions}
+
+    \begin{itemize}[<+->]
+        \item Functions are just objects with two special properties: a context (scope) and the
+            function code.
+        \item Functions can be defined anywhere where an object can be defined and can be stored in
+            variables.
+        \item Functions can access all arguments passed to a function via the \texttt{arguments}
+            variable.
+        \item Functions can access the callee of a function (\texttt{callee.func()}) via the
+            \texttt{this} variable.
+        \item Functions can also have named parameters.
+        \item Functions always return a value. If no return is explicitly specified, the function
+            will return \texttt{undefined}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Functions: Callback}
+    Since JavaScript functions are objects, they can be passed just like other objects.
+
+    \begin{minted}{javascript}
+    function doStuff(callback) {
+        // do a bunch of processing
+        var x = 3;
+        console.log('in doStuff');
+        callback(x);
+    }
+
+    doStuff(function(x) {
+        console.log(x * 3);
+    });
+    \end{minted}
+
+    \textbf{Output:}
+    \begin{minted}{text}
+    in doStuff
+    9
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Functions: New}
+    JavaScript functions can be invoked with the \texttt{new} keyword, mimicking traditional
+    class-based languages:
+
+    \begin{minted}{javascript}
+    function Thing(val) {
+        this.v = val;
+    }
+
+    var t = new Thing(12);
+    console.log(t.v); // prints 12
+    \end{minted}
+
+    But don't be fooled. Really that is just equivalent to:
+
+    \begin{minted}{javascript}
+    ...
+
+    var t = {};
+    t.prototype = Thing.prototype;
+    t.Thing(12); // the important bit!
+    console.log(t.v); // prints 12
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Scope}
+
+    There are two scopes in JavaScript: global and function.\footnotemark[1] \\
+
+    Variables declared outside of a function are automatically in the global scope.\\
+
+    Variables declared within a function \textit{without} the \texttt{var} keyword are also in the
+    global scope.
+
+    \begin{minted}{javascript}
+    var a = 2;
+    (function() {
+        b = 3
+        var c = 5;
+    })(); // this creates and invokes the function immediately
+
+    console.log(a); // logs 2
+    console.log(b); // logs 3
+    console.log(c); // error since c is undefined in global scope
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Global Abatement}
+    Because your code could coexist with other people's code, on the same HTML page, it is
+    recommended that you reduce your \textit{global footprint} by only creating a few global objects
+    and then putting all assets into that object.
+
+    \begin{minted}{javascript}
+    myGlobal = (function() {
+        var myInternalData = 10;
+        return {
+            data: 5,
+            subObject: {
+                cool: 'things',
+            },
+            fn: function() { return myInternalData; },
+        };
+    })();
+    \end{minted}
+
+    Since you can add properties to objects at will, you can still split your code into multiple
+    files.
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Private Variables}
+
+    You can simulate private variables the same way:
+
+    \begin{minted}{javascript}
+    var Dog = function(name) {
+        var gender = 'male';
+        this.name = name;
+        this.isBoy = function () {
+            return gender == 'male';
+        };
+    };
+
+    var myDog = new Dog('Sebastian');
+    console.log(myDog.gender);  // logs undefined
+    console.log(myDog.name);    // logs 'Sebastian'
+    console.log(myDog.isBoy()); // logs true
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Syntax: Control Statements}
+
+    \begin{minted}{javascript}
+    // if statement syntax is identical to C++
+    if (condition) {
+    } else if (condition) {
+    } else {
+    }
+
+    // ternary syntax is just like C++
+    var a = condition ? val_if_true : val_if_false;
+
+    for (initializer; condition; incrementor) {
+        // for loop syntax is identical
+    }
+
+    for (var prop in obj) {
+        obj[prop].doThing(); // prop is the key
+                             // could be a number or a string
+    }
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Pitfalls: Variable Hoisting}
+
+    Variables are \textit{hoisted} to the top of the function they are declared in. Thus, the
+    following is entirely valid.
+
+    \begin{minted}{javascript}
+    function scopeEx() {
+        b = 5;
+        console.log(b); // logs 5
+        var b = 3
+        console.log(b); // logs 3
+    }
+    \end{minted}
+
+    This is confusing. Just declare your variables before you use them.
+
+    \footnotetext[1]{In ES6, variables declared with \texttt{let} are actually block scope.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Pitfalls: Truthy, Falsy and \texttt{==} vs \texttt{===}}
+
+    JavaScript has the notion of being \textit{truthy} and \textit{falsy}.\\
+
+    The following values are always falsy: \texttt{false, 0, "", null, undefined, NaN}. \\
+
+    Do not expect all falsy values to be equal to each other (\texttt{false == null} is false). \\
+
+    JavaScript has two equality operators:
+    \begin{itemize}
+        \item \texttt{==} compares without checking variable type. This will cast then compare.
+        \item \texttt{===} compares and checks variable type.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{DOM Manipulation}
+    The \textit{Document Object Model} is an API used by JavaScript to interact with the elements of
+    an HTML document.\footnotemark[1]
+
+    jQuery is great for simple DOM manipulation.
+
+    \begin{minted}{html}
+    <div id="cool">Cool</div>
+    <div class="myCls">jQuery Demo</div>
+    \end{minted}
+
+    \begin{minted}{javascript}
+    var coolDiv = document.getElementById('cool'); // pure JS
+    coolDiv.style.background = 'blue';
+
+    var coolDiv = $('#cool');                      // jQuery
+    coolDiv.css('background-color', 'blue');
+    \end{minted}
+
+    jQuery does a ton of other useful things as well, but that's what the docs are for.
+
+    \footnotetext[1]{\url{https://en.wikipedia.org/wiki/Document_Object_Model}}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Canvas Manipulation}
+
+    While many JS games (like 2048) use lots of HTML and CSS to drawn the
+    game, with some JS and DOM/JQuery-stuff for the logic. However, you can
+    also draw the game directly using a Canvas. All you need then is a few
+    lines of HTML and the rest can happen in your script. You can even create
+    3D stuff with WebGL or a 3rd party library like Three.js.
+
+    \begin{minted}{javascript}
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    ctx.moveTo(0,0);
+    ctx.lineTo(200,100);
+    ctx.stroke();
+     \end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Libraries}
+
+    {\footnotesize
+    \begin{easylist}[itemize]
+        & DOM Manipulation (HTML and CSS stuff)
+        && \checkmark JQuery (Yep)
+        & HTML5 Canvas (Direct drawing from JS)
+        && \checkmark EaselJS (Nice interation callbacks)
+        && bHive (Never used it, but other people like it)
+        && \checkmark Paper.js (Good vector and shape drawing)
+        && WebGL (3D Graphics if you can OpenGL the things)
+        &&& \checkmark Three.js (3D Graphics if you can't Opengl the things)
+        &&& BabylonJS (Looks pretty I guess)
+        & WebSockets (TCP, multiplayer, experimental, good luck)
+        && Socket.io (talk to your Node.JS server?)
+        & Audio Stuff
+        && SoundJS (Again, never used)
+        && Google (you are smart, figure it out)
+    \end{easylist}
+    }
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Additional Resources}
+
+    A lot of this presentation was based off of \textit{JavaScript: The Good Parts} by Douglas
+    Crockford. This is an essential read for anyone interested in learning JavaScript for anything
+    more than writing a few simple scripts.\\
+
+    MDN is the best resource for JavaScript documentation
+    (\url{https://developer.mozilla.org/en-US/}). \\
+
+    \textbf{JSHint} (\url{http://jshint.com/about/}) is a tool which checks JavaScript syntax and
+    helps prevent bugs in your code. JSHint has plugins for most IDEs and text editors. Here's a SO
+    article on the Vim plugin: \url{http://stackoverflow.com/questions/473478/vim-jslint/5893447}\\
+
+\end{frame}
+
+\end{document}

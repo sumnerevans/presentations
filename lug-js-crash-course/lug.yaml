@@ -1,0 +1,9 @@
+Title: "JavaScript Crash Course"
+Description: >
+    A Crash Course on JavaScript by Sumner and Sam
+Date: 2016-11-10
+Thumbnail: graphics/js.jpg
+Files:
+        SlidesPDF: js-crash-course.pdf
+        LaTeX: js-crash-course.tex
+        Samples: resources.md
