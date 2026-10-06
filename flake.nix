@@ -22,6 +22,7 @@
           name = "typst";
           packages = with pkgs; [
             typst
+            pympress
           ];
         };
       }

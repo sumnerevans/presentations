@@ -45,6 +45,8 @@
 #speaker-note[
   Let's start with some of your thoughts: what comes to mind when you think of
   "software architecture"?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 #align(center)[
@@ -59,6 +61,8 @@
 
 #speaker-note[
   Software Architecture is a metaphor for actual Architecture.
+
+  _READ SLIDE_
 
   Architects have to think about the properties of the various elements of a
   building. For example, you don't want to put an indoor outlet outdoors, or
@@ -76,11 +80,10 @@
 #speaker-note[
   So we have to reason and make decisions about our systems, how do we do that?
 
-  The two most important things to think about when reasoning about software
-  architecture are:
+  _READ SLIDE_
 ]
 
-Architecting Software Requires thinking about _trade-offs_ and _constraints_ in
+Architecting software requires thinking about _trade-offs_ and _constraints_ in
 relation to the _desired properties_ of a system.
 
 = Desired Properties
@@ -89,6 +92,8 @@ relation to the _desired properties_ of a system.
   There are lots of _desirable properties_ of software systems. So here's
   another question: what are some potentially desirable properties of software
   systems?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 - Satisfies the business requirements
@@ -106,6 +111,8 @@ relation to the _desired properties_ of a system.
 #speaker-note[
   Here are some that I thought of...
 
+  _READ SLIDE_
+
   _Some people say the "architecture" is only concerned with the meta-analysis
   of the system, whereas "design" is where the requirements come into play._
 
@@ -122,6 +129,8 @@ relation to the _desired properties_ of a system.
 
   So here's the next question: what are some potential constraints that we may
   face when building software systems?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 - Money
@@ -136,12 +145,16 @@ relation to the _desired properties_ of a system.
 
 #speaker-note[
   Here are some that I thought of...
+
+  _READ SLIDE_
 ]
 
 = Trade-offs
 
 #speaker-note[
   So every software has a set of desirable properties and a set of constraints.
+
+  _READ SLIDE_
 ]
 
 - Sometimes the desired properties are at odds with one another
@@ -172,6 +185,8 @@ make*.
   I'm going to cover two fundamental frameworks because these are the ones that
   resonate the most with me.
 
+  _READ SLIDE_
+
   Whenever I'm thinking about the architecture of a software system I think
   about these two frameworks first.
 
@@ -187,8 +202,12 @@ into distinct _concerns_ that can be individually reasoned about.
 #pause
 
 #speaker-note[
+  _READ SLIDE_
+
   There are lots of ways to slice a system into concerns. Here are some broad
   categories of ways to slice:
+
+  _READ SLIDE_
 ]
 
 - *Temporally* - slicing the software by the sequencing of activities
@@ -214,6 +233,8 @@ into distinct _concerns_ that can be individually reasoned about.
 
   What are some places you have seen the sequencing of activities be a dividing
   line for a software system?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Slicing the software by the sequencing of activities
@@ -248,6 +269,8 @@ Slicing the software by the sequencing of activities
 
   What are some places you have seen the properties of the compute workloads be
   a dividing line for a software system?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Slicing the software based on the properties of the compute workloads
@@ -274,6 +297,8 @@ Slicing the software based on the properties of the compute workloads
 
   What are some places you have seen the physical or logical location of the
   compute activities be a dividing line for a software system?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Slicing the software based on the physical or logical location of the
@@ -301,6 +326,8 @@ compute activities
 
   What are some places you have seen the features of the system be a dividing
   line for a software system?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Slicing the software based on the features of the system
@@ -316,10 +343,46 @@ Slicing the software based on the features of the system
 - Service Level
   - Netflix-style microservice architecture
 
+== If You Can Name It, You Can Build It
+
+#speaker-note[
+  One of the easiest ways to mess up Separation of Concerns is to have concerns
+  that are not well-defined/splattered.
+  Ex: multiple systems that constitute the source of truth for the
+  configuration of your application.
+
+  My favorite quote about this came from a prior manager, Brad Murray, who said
+  (in essence): _READ SLIDE_
+
+  This was in reference to services, but I think it applies to concerns in
+  general.
+]
+
+#quote(attribution: "Brad Murray (paraphrase)")[
+  If you can name it, you know what it is. And if you know what it is, you can
+  build it.
+]
+
+#pause
+
+Once you have named a concern, it's easy to reason about its desired properties,
+understand its constraints, and make decisions about trade-offs.
+
+#speaker-note[
+  _READ_SLIDE_
+
+  "Backend" is probably not a good enough concern. "Authentication Service" is.
+
+  When you start wondering if the "Auth Service" should manage provisioning user
+  resources, answer probably "no".
+]
+
 == Interfaces
 
 #speaker-note[
   So we have a bunch of concerns, but how do we coordinate them?
+
+  _READ SLIDE_
 ]
 
 Interfaces are the contact surface between concerns. There are two models of
@@ -357,6 +420,8 @@ Substitution Principle_:
 
   What are some places you have seen concerns communicate directly with each
   other?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Concerns communicate directly with each other
@@ -371,6 +436,7 @@ Concerns communicate directly with each other
 - Service Level
   - REST/GraphQL API
   - gRPC
+  - OpenAPI
 
 == Interfaces: Message Bus
 
@@ -379,6 +445,8 @@ Concerns communicate directly with each other
 
   What are some places you have seen concerns communicate directly with each
   other?
+
+  _AUDIENCE PARTICIPATION_
 ]
 
 Concerns communicate indirectly through a message bus
@@ -399,21 +467,24 @@ Concerns communicate indirectly through a message bus
 = Conway's Law
 
 #speaker-note[
-  So we have now discussed a few conceptual frameworks to think about software
-  architecture, but what is the _right_ architecture?
+  So we have discussed a few frameworks for reasoning about software
+  architecture.
 
-  As always, it is dependent on context.
+  But there is one unavoidable fact that will influence the architecture of your
+  software system more than anything else: the organization of the code
+  producers building the system.
 
-  An architectural decision is only good or bad in the context of the time in
-  which it was made.
-
-  Architecture needs to change because circumstances change.
+  That is where Conway's Law comes in.
 ]
 
 #quote(attribution: "Melvin E. Conway, How Do Committees Invent?")[
   Organizations which design systems (in the broad sense used here) are
-  constrained to produce designs which are copies of the communication structures
-  of these organizations.
+  constrained to produce designs which are copies of the communication
+  structures of these organizations.
+]
+
+#speaker-note[
+  _READ SLIDE_
 ]
 
 #pause
@@ -425,13 +496,17 @@ Alternative phrasings
 ]
 
 #quote[
-  If you have four teams working on a compiler, you're likely to get a four-pass
+  If you have four teams working on a compiler, you're going to get a four-pass
   compiler.
 ]
 
+#quote[
+  You're going to ship your org chart.
+]
+
 #speaker-note[
-  If you don't like your software architecture, you should look at your
-  organizational structure.
+  If you don't like your software architecture, you should look at your org
+  structure.
 ]
 
 #pause
@@ -439,6 +514,8 @@ Alternative phrasings
 Conway's Law applies to all code producers, including _humans and AI agents_.
 
 #speaker-note[
+  _READ SLIDE_
+
   I think that Conway's Law is going to be more and more important to individual
   software engineers because Conway's Law extends to AI agents as well.
 
@@ -447,32 +524,40 @@ Conway's Law applies to all code producers, including _humans and AI agents_.
   the software engineering toolbox.
 ]
 
-== If You Can Name It, You Can Build It
+== Reverse Conway Maneuver 
 
-#quote(attribution: "Brad Murray (paraphrase)")[
-  If you can name it, you know what it is. If you know what it is, you can build it.
-]
+If you want to change your software architecture, Conway's Law suggests that you
+should change your org structure.
 
 #pause
 
-Once you have named a concern, it's easy to reason about its desired properties,
-understand its constraints, and make decisions about trade-offs.
+- Want an architecture with temporally separated components interacting over a
+  message bus?
+  - Make a set of teams that individually own each temporally separated
+    component and primarily communicate with other teams via an Architecture
+    Council (message bus).
 
+#pause
+
+- Want an architecture with workload separated components interacting in a
+  peer-to-peer architecture?
+  - Make a set of teams that individually own certain workloads and force them
+    to reach out directly negotiate with the other teams that they rely on.
 
 = Conclusion
+
+Architecting software requires thinking about _trade-offs_ and _constraints_ in
+relation to the _desired properties_ of a system.
 
 #speaker-note[
   What is the right architecture?
 
   As with most things: it depends.
 
-  An architectural decision is only good or bad in the context of the time in
-  which it was made. Which means that yesterday's good decision could be today's
-  bad decision.
-
-  Architecture needs to change based on circumstances, and the architecture must
-  evolve and adapt to the circumstances.
+  As I said at the beginning of the talk: _READ SLIDE_
 ]
+
+#pause
 
 - Similar patterns emerge to solve problems across different levels of
   abstraction
@@ -481,14 +566,26 @@ understand its constraints, and make decisions about trade-offs.
   reimplementations of old ideas
 - Well-rounded software engineers should understand the underlying principles
   so that when presented with new technologies, they can apply the conceptual
-  frameworks they already understand to reason correctly in the context of the
-  new technology
+  frameworks they already understand to reason correctly in the new context
+- Circumstances constantly change, and the architecture must evolve and adapt
+
+#speaker-note[
+  But what I want to leave you with is this: _READ SLIDE_
+
+  _An architectural decision is only good or bad in the context of the time in
+  which it was made. Which means that yesterday's good architecture could be
+  today's bad architecture._
+
+  _You have to be willing to reevaluate and change your architecture as the
+  circumstances change._
+]
 
 == Additional Resources
 
 - Casey Muratori (Software Architecture, Software Engineering History)
   - #link("https://youtu.be/hpj6r6CjJf8?si=PyXVrKLoZCbsXfuf")[The Root of the Root of All Evil]
   - #link("https://youtu.be/wo84LFzx5nI?si=YHztIRVGSi6GaJBO")[The Big OOPs: Anatomy of a Thirty-five-year Mistake]
+  - #link("https://www.youtube.com/watch?v=5IUj1EZwpJY")[The Only Unbreakable Law] (Conway's Law)
 
 - #link("https://www.seangoedecke.com/")[Sean Geodecke] (General Software Engineering Blog)
 
