@@ -175,6 +175,9 @@ make*.
   There have been a lot of "conceptual frameworks" that have been used to solve
   real software architecture problems across many different domains.
 
+  Similar patterns emerge to solve problems across different levels of
+  abstraction
+
   These frameworks help us reason about the trade-offs systematically.
 ]
 
@@ -199,11 +202,11 @@ make*.
 Separation of Concerns says that a complex software system should be divided
 into distinct _concerns_ that can be individually reasoned about.
 
+#speaker-note[_READ SLIDE_]
+
 #pause
 
 #speaker-note[
-  _READ SLIDE_
-
   There are lots of ways to slice a system into concerns. Here are some broad
   categories of ways to slice:
 
@@ -371,7 +374,7 @@ understand its constraints, and make decisions about trade-offs.
 #speaker-note[
   _READ_SLIDE_
 
-  "Backend" is probably not a good enough concern. "Authentication Service" is.
+  "Backend" is probably not a good enough name. "Authentication Service" is.
 
   When you start wondering if the "Auth Service" should manage provisioning user
   resources, answer probably "no".
@@ -443,8 +446,8 @@ Concerns communicate directly with each other
 #speaker-note[
   Let's start with peer-to-peer interfaces.
 
-  What are some places you have seen concerns communicate directly with each
-  other?
+  What are some places you have seen concerns communicate indirectly with each
+  other over a message bus?
 
   _AUDIENCE PARTICIPATION_
 ]
@@ -546,16 +549,16 @@ should change your org structure.
 
 = Conclusion
 
-Architecting software requires thinking about _trade-offs_ and _constraints_ in
-relation to the _desired properties_ of a system.
-
 #speaker-note[
   What is the right architecture?
 
   As with most things: it depends.
-
-  As I said at the beginning of the talk: _READ SLIDE_
 ]
+
+Architecting software requires thinking about _trade-offs_ and _constraints_ in
+relation to the _desired properties_ of a system.
+
+#speaker-note[As I said at the beginning of the talk: _READ SLIDE_]
 
 #pause
 
