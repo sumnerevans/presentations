@@ -2,6 +2,7 @@
 #import themes.metropolis: *
 
 #set text(font: "Iosevka")
+#set quote(block: true)
 
 #show: metropolis-theme.with(
   aspect-ratio: "4-3",
@@ -44,8 +45,6 @@
 #speaker-note[
   Let's start with some of your thoughts: what comes to mind when you think of
   "software architecture"?
-
-  Maybe start with architecture terms that you have heard?
 ]
 
 #align(center)[
@@ -102,122 +101,395 @@ relation to the _desired properties_ of a system.
 - Resilient to cyber attacks
 - Takes advantage of the latest hardware advances
 - Works well on old hardware
+- Fault tolerant even under the solar radiation bombardment
 
 #speaker-note[
   Here are some that I thought of...
 
-  Some people say the "architecture" is only concerned with the meta-analysis
-  of the system, whereas "design" is where the requirements come into play.
+  _Some people say the "architecture" is only concerned with the meta-analysis
+  of the system, whereas "design" is where the requirements come into play._
 
-  I think that's a load of bullshit. In order to talk in an educated manner
+  _I think that's a load of bullshit. In order to talk in an educated manner
   about why we choose a particular architecture, we have to understand the
-  requirements of the system.
+  requirements of the system._
 ]
 
 = Constraints
 
-- Easy to organise a large company of workers towards building features
-- Memory
+#speaker-note[
+  Unfortunately, we have to build software in the real world, which means that
+  we have to deal with constraints.
+
+  So here's the next question: what are some potential constraints that we may
+  face when building software systems?
+]
+
 - Money
-- Low power draw (plutonium power source)
-- Fault tolerant even under the solar radiation bombardment
-- Speed of light
-- No outside code allowed
-- Airgap
+- Development Time
+  - Easy to organise a large company of workers towards building features
+- Available development resources
+- Regulations
+  - Code need to be written in an airgapped environment (no libraries, no internet)
+- Compute Resources (disk, RAM, CPU, cache, GPUs, network switches)
+- Small amounts of available power (ex: plutonium power source)
+- The speed of light
+
+#speaker-note[
+  Here are some that I thought of...
+]
 
 = Trade-offs
 
-- Sometimes the constraints are at odds with one another
+#speaker-note[
+  So every software has a set of desirable properties and a set of constraints.
+]
+
 - Sometimes the desired properties are at odds with one another
+- Sometimes the constraints are at odds with one another
 - Sometimes the properties are at odds with the constraints
 
-The end result is the same: we have to make a trade-off decision.
+#pause
 
-= Tools
+The end result is the same: we have to make a decision about *what trade-off to
+make*.
 
-What tools do we have to build systems which accomplish the goals given the
-constraints?
+= Conceptual Frameworks
+
+#speaker-note[
+  So how do we reason about the trade-offs? Luckily, we have over 50 years of
+  software engineering practice evolution to learn from.
+
+  There have been a lot of "conceptual frameworks" that have been used to solve
+  real software architecture problems across many different domains.
+
+  These frameworks help us reason about the trade-offs systematically.
+]
+
+- Separation of Concerns
+- Interfaces
+
+#speaker-note[
+  I'm going to cover two fundamental frameworks because these are the ones that
+  resonate the most with me.
+
+  Whenever I'm thinking about the architecture of a software system I think
+  about these two frameworks first.
+
+  As we go through each of them, we are going to investigate how each of them is
+  applied in various contexts, up and down the abstraction hierarchy.
+]
 
 == Separation of Concerns
 
-- MVC
-- Microservices
-- Event Driven Architecture
-- Pipelining
-- Layering
+Separation of Concerns says that a complex software system should be divided
+into distinct _concerns_ that can be individually reasoned about.
 
-== Liskov Substitution Principle
+#pause
+
+#speaker-note[
+  There are lots of ways to slice a system into concerns. Here are some broad
+  categories of ways to slice:
+]
+
+- *Temporally* - slicing the software by the sequencing of activities
+- *Workload* - slicing the software by the properties of the compute workloads
+- *Spacially* - slicing the software by the physical or logical location of the
+  compute activities
+- *Feature* - slicing the software based on the features of the system
+
+#speaker-note[
+  We are going to look at how each of these slicing strategies is applied at
+  different levels of abstraction:
+
+  - Hardware
+  - Programming Language
+  - Module
+  - Service or Microservice
+]
+
+== Separation of Concerns: Temporal Slicing
+
+#speaker-note[
+  Let's start with temporal slicing.
+
+  What are some places you have seen the sequencing of activities be a dividing
+  line for a software system?
+]
+
+Slicing the software by the sequencing of activities
+
+#pause
+
+#speaker-note[
+  At each of these levels of abstraction, using temporal slicing is a trade-off.
+
+  - Hardware: FPGA/ASIC
+  - PL: FP normally sacrifices cache locality
+]
+
+- Hardware Level
+  - CPU Pipelining
+  - Sequential execution of instructions
+- Programming Language Level
+  - Functional programming data processing pipelines (streams, LINQ)
+- Module Level
+  - Data processing pipelines (streams)
+  - Extract, Transform, Load (ETL)
+  - Event-driven architecture
+- Service Level
+  - #link("https://flink.apache.org/")[Apache Flink],
+    Apache Kafka (streaming data processing pipelines)
+  - Apache Airflow, AWS Glue (ETL pipelines)
+
+== Separation of Concerns: Workload Slicing
+
+#speaker-note[
+  Let's move on to workload slicing.
+
+  What are some places you have seen the properties of the compute workloads be
+  a dividing line for a software system?
+]
+
+Slicing the software based on the properties of the compute workloads
+
+#pause
+
+- Hardware
+  - GPU vs CPU
+  - FPU vs ALU in CPU
+  - Efficiency cores
+- Programming Language Level
+  - Thread priority hints
+- Module Level
+  - Sidecar Pattern
+  - Separate database server from main application
+  - Database read replicas
+- Service Level
+  - AWS Lambda for irregular workloads vs EC2 for regular workloads
+
+== Separation of Concerns: Spacial Slicing
+
+#speaker-note[
+  Let's move on to spacial slicing.
+
+  What are some places you have seen the physical or logical location of the
+  compute activities be a dividing line for a software system?
+]
+
+Slicing the software based on the physical or logical location of the
+compute activities
+#pause
+
+- Hardware Level
+  - CPU vs GPU
+- Programming Language Level
+  - Thread pools
+  - Thread affinity
+- Module Level
+  - Frontend vs Backend
+  - Database Stored Procedures
+  - Database vs Application Server
+- Service Level
+  - Sharding
+  - Multi-region deployment
+  - Multi-cloud deployment
+
+== Separation of Concerns: Feature Slicing
+
+#speaker-note[
+  Let's move on to feature slicing.
+
+  What are some places you have seen the features of the system be a dividing
+  line for a software system?
+]
+
+Slicing the software based on the features of the system
+#pause
+
+- Hardware Level
+  - CPU, RAM, GPU, Disk, Network, ...
+- Programming Language Level
+  - Structs/classes
+  - Functions/methods
+- Module Level
+  - Packages/Libraries
+- Service Level
+  - Netflix-style microservice architecture
+
+== Interfaces
+
+#speaker-note[
+  So we have a bunch of concerns, but how do we coordinate them?
+]
+
+Interfaces are the contact surface between concerns. There are two models of
+interface between concerns:
+
+- *Peer-to-Peer* - concerns communicate directly with each other
+- *Message Bus* - concerns communicate indirectly through a message bus
+
+#pause
+
+When designing interfaces, it is important to keep in mind the _Liskov
+Substitution Principle_:
+
+#quote[
+  If $S$ is a subtype of $T$, then objects of type $T$ in a program may be
+  replaced with objects of type $S$ without altering any of the desirable
+  properties of that program (e.g., correctness).
+]
+
+#speaker-note[
+  This principle applies to more than just object-oriented programming. It
+  applies to any interface between concerns, whether they are objects, modules,
+  or services.
+
+  For example, LSP is the reason we can replace one service with another that
+  implements the same interface without breaking the system.
+
+  LSP advocates for us to have well-defined contracts between concerns.
+]
+
+== Interfaces: Peer-to-Peer
+
+#speaker-note[
+  Let's start with peer-to-peer interfaces.
+
+  What are some places you have seen concerns communicate directly with each
+  other?
+]
+
+Concerns communicate directly with each other
+#pause
+
+- Hardware Level
+  - Direct core-to-core communication
+- Programming Language Level
+  - Function/method signatures
+- Module Level
+  - Interfaces/traits
+- Service Level
+  - REST/GraphQL API
+  - gRPC
+
+== Interfaces: Message Bus
+
+#speaker-note[
+  Let's start with peer-to-peer interfaces.
+
+  What are some places you have seen concerns communicate directly with each
+  other?
+]
+
+Concerns communicate indirectly through a message bus
+
+- Hardware Level
+  - CPU bus
+  - USB/PCIe
+  - Memory bus
+- Programming Language Level
+  - Channels
+  - Greenthreads
+- Module Level
+  - Reactive programming
+- Service Level
+  - Message queues (RabbitMQ, Kafka, SQS)
+  - D-Bus (Linux)
 
 = Conway's Law
 
-Conway
+#speaker-note[
+  So we have now discussed a few conceptual frameworks to think about software
+  architecture, but what is the _right_ architecture?
+
+  As always, it is dependent on context.
+
+  An architectural decision is only good or bad in the context of the time in
+  which it was made.
+
+  Architecture needs to change because circumstances change.
+]
+
+#quote(attribution: "Melvin E. Conway, How Do Committees Invent?")[
+  Organizations which design systems (in the broad sense used here) are
+  constrained to produce designs which are copies of the communication structures
+  of these organizations.
+]
+
+#pause
+
+Alternative phrasings
+
+#quote[
+  Any piece of software reflects the organizational structure that produced it.
+]
+
+#quote[
+  If you have four teams working on a compiler, you're likely to get a four-pass
+  compiler.
+]
+
+#speaker-note[
+  If you don't like your software architecture, you should look at your
+  organizational structure.
+]
+
+#pause
+
+Conway's Law applies to all code producers, including _humans and AI agents_.
+
+#speaker-note[
+  I think that Conway's Law is going to be more and more important to individual
+  software engineers because Conway's Law extends to AI agents as well.
+
+  As individual contributors are increasingly expected to do more architecture,
+  the organization of agents is going to be a more and more important tool in
+  the software engineering toolbox.
+]
 
 == If You Can Name It, You Can Build It
 
-= Exercise
-
-#image-slide(background: image("resources/netflix.jpg"))[]
-
-#speaker-note[
-  OK, so let's look at a couple examples, starting with Netflix.
-
-  What properties do you think Netflix felt were desirable when they were
-  architecting their system?
-
-  - Fast to get to viewing video
-  - Viewing is not interrupted by buffering
-  - Interactions are fast with the app
-  - Fast on lots of devices
-  - Consistently fast worldwide
-  - Many simultaneous users
-  - Easy to quickly modify and deploy new features
+#quote(attribution: "Brad Murray (paraphrase)")[
+  If you can name it, you know what it is. If you know what it is, you can build it.
 ]
 
-What is the right architecture?
+#pause
 
-It is dependent on context.
+Once you have named a concern, it's easy to reason about its desired properties,
+understand its constraints, and make decisions about trade-offs.
 
-An architectural decision is only good or bad in the context of the time in which it was made
 
-Architecture needs to change
-based on circumstance
+= Conclusion
+
+#speaker-note[
+  What is the right architecture?
+
+  As with most things: it depends.
+
+  An architectural decision is only good or bad in the context of the time in
+  which it was made. Which means that yesterday's good decision could be today's
+  bad decision.
+
+  Architecture needs to change based on circumstances, and the architecture must
+  evolve and adapt to the circumstances.
+]
+
+- Similar patterns emerge to solve problems across different levels of
+  abstraction
+- There is rarely anything new under the sun, many "new and shiny" languages,
+  frameworks, libraries, and services are just reapplications or
+  reimplementations of old ideas
+- Well-rounded software engineers should understand the underlying principles
+  so that when presented with new technologies, they can apply the conceptual
+  frameworks they already understand to reason correctly in the context of the
+  new technology
 
 == Additional Resources
 
-Not necessarily software architecture related
+- Casey Muratori (Software Architecture, Software Engineering History)
+  - #link("https://youtu.be/hpj6r6CjJf8?si=PyXVrKLoZCbsXfuf")[The Root of the Root of All Evil]
+  - #link("https://youtu.be/wo84LFzx5nI?si=YHztIRVGSi6GaJBO")[The Big OOPs: Anatomy of a Thirty-five-year Mistake]
 
-Sean Geodecke
-SWE Radio
-Coder
-Peterman
+- #link("https://www.seangoedecke.com/")[Sean Geodecke] (General Software Engineering Blog)
 
-// software engineering from first principles
-//
-// * Separation of Concerns
-//
-//   * responsibility allocation
-//   * unix philosophy
-//
-//   * Liskov substitution principle
-//
-// * Trade-Offs
-//
-// * functions
-// * classes/structs/interfaces
-// * modules/packages/libraries
-// * (micro)services
-// * systems/protocols
-//
-// * pipeline architecture
-// * frontend/backend
-// * business area
-//
-// Exercise
-//
-// * Tradeoffs
-//
-// * Services
-//
-// * Naming
-//
-// * Conway's Law
+- #link("https://www.youtube.com/@RyanLPeterman")[Ryan Peterman] (Software Engineering Podcast)
