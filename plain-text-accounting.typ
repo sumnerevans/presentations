@@ -66,6 +66,28 @@
 - Mortgages
 - Car Loans
 
+#speaker-note[
+  Net worth is like a snapshot of your financial situation. The trajectory over
+  time is probably more important than any particular day's/month's/year's net
+  worth.
+
+  My net worth is hovering right at the \$1M mark, depending on how the market
+  performs on any given day, how much you value my house at, and a couple other
+  major factors.
+
+  But, my net worth has about doubled since 2023, so that is the trajectory that
+  I care about.
+]
+
+== Liquidity
+
+Liquidity is the ability to convert an asset into cash.
+
+- Physical Cash, Checking/Savings Accounts
+- Stocks, Bonds, Treasuries
+- Real Estate, Vehicles, Jewelry, Collectibles, Artwork
+- Private Equity, Business
+
 == Cash Flow
 
 *Cash Flow* is the amount of money you have coming in and going out over a
@@ -118,130 +140,187 @@ I'm going to be honest that I don't really budget very strictly. I mainly just
 track my savings rate and net worth, so we aren't going to really talk too much
 about this.
 
+= Personal Finance Software
+
+#speaker-note[
+  But this is LUG, we are nerds so let's talk software. Obviously, tracking
+  finances can be hard (we make lots of financial transactions in our lives).
+
+  I've used a lot of personal finance software over the years.
+]
+
+- Mint (RIP)
+- Personal Capital
+- Rocket Money
+- Origin
+
+All of these are online SaaS platforms which connect to all your financial
+accounts and automatically pull transactions and balance updates.
+
+I think that all of these are pretty good if you are just starting out and want
+to quickly see where money is going in your life.
+
+#pause
+
+There are also plenty of open source personal finance software options, but I
+haven't used any of them.
+
+- YNAB (You Need A Budget)
+- GnuCash
+
+#speaker-note[
+  A few years ago, I felt like I needed something more powerful. I started
+  tracking monthly net worth in markdown files in a git repo, and I manually
+  entered every transaction into that file. I did this for quite a few years,
+  and then I tried out Origin, which was pretty good.
+
+  However, I eventually got annoyed with it because it couldn't quite grasp my
+  financial situation, and I wanted to learn more about double-entry
+  bookkeeping.
+
+  I asked Claude to do some research into best practices, and it surfaced an
+  option that I hadn't even heard of: plain text accounting.
+
+  First, we have to talk about double-entry bookkeeping.
+]
+
 = Double-Entry Bookkeeping
 
 *Double-entry bookkeeping*, also known as _double-entry accounting_, is a method
 of bookkeeping in which every financial transaction is recorded with equal and
 opposite entries (debits and credits) - thus "balancing the books".
 
-== General Ledger
+#speaker-note[
+  I think it's easiest to see this in action in some examples.
+]
 
-= Personal Finance Software
+== Accounts
 
-- Personally Used
-  - Mint
-  - Personal Capital
-  - Rocket Money
-  - Origin
-- Applications I looked into
-  - YNAB (You Need A Budget)
-  - GnuCash
+In double-entry bookkeeping, money#footnote[or really anything] is tracked in
+*accounts*. You have different kinds of accounts for different things:
+
+- *Asset Accounts* --- checking, brokerage, retirement, etc.
+- *Liability Accounts* --- credit cards, loans, mortgages, etc.
+- *Income/Revenue Accounts* --- paychecks, dividends, interest, etc.
+- *Expense Accounts* --- groceries, utilities, rent, etc.
+#pause
+- *Equity Accounts* --- not really relevant for personal finance, I use it for
+  transfer tracking
+
+== Transactions
+
+Every transaction is a record of money moving from some set of accounts to
+another set of accounts.
+
+In double-entry bookkeeping, the sum of each transaction must equal zero.
+
+== Examples
+
+*Paying for groceries with a credit card:*
+
+- +50 USD to `expenses:food:groceries` (expense outflow)
+- -50 USD from `liabilities:cc:venturex` (increases your liabilities)
+
+#speaker-note[
+  Increasing a liability makes it _more_ negative (you owe more money).
+
+  Your expenses effectively become an asset to the store. We are effectively
+  adding to the store's assets.
+]
+
+#pause
+
+*Paying off your credit card with a bank transfer:*
+- +50 USD to `liabilities:cc:venturex` (decreases your liabilities)
+- -50 USD from `assets:cash:fidelity:checking` (decreases your assets)
+
+#pause
+
+*Buying a stock with cash:*
+- +10 shares of VOO at 1,000 USD each to `assets:retirement`
+- -10,000 USD from `assets:cash:fidelity:checking`
+
+#pause
+
+*Do you have any other transactions that you want to see an example of?*
 
 = Plain Text Accounting
 
-- hledger
+#speaker-note[
+  So now for the part you've been waiting for: plain text accounting.
+]
+#link("https://plaintextaccounting.org/")[Plain Text Accounting] (PTA) is an
+umbrella term for storing accounting data with plaintext files.
 
-// ---
-// title: Plain Text Accounting is Pretty Cool
-// date: 2026-08-15T06:25:00-06:00
-// categories:
-//   - Money
-// tags:
-//   - Plain Text
-//   - Accounting
-//   - Double-Entry Bookkeeping
-//   - Personal Finance
-//   - hledger
-// discussion_links:
-//   - name: Lobsters
-//     url: https://lobste.rs/s/i4lxyt/plain_text_accounting_is_pretty_cool
-//   - name: r/plaintextaccounting
-//     url: https://www.reddit.com/r/plaintextaccounting/s/7NdiAtpyRF
-// ---
-//
-// I like to keep track of my finances pretty religiously. I don't really budget, I
-// am just very obsessive about tracking every expense, and ensuring that my
-// overall savings rate is high[^1]. I started by using Mint (may it rest in peace)
-// and when it got killed, I switched to
-// [Rocket Money](https://www.rocketmoney.com/). Eventually I got annoyed with that
-// due to it not supporting connections to some of my accounts and I ended up
-// keeping track of my finances manually in markdown files in a git repo for a few
-// years.[^2] Last year, I started using [Origin](https://useorigin.com/), which
-// was pretty good. However, recently I started looking for a new solution due to a
-// few reasons:
-//
-// [^1]: My gross savings rate is over 35%, and my after-tax savings rate is
-//     approaching 50%.
-//
-// [^2]: I built some basic automations for doing things like summing expenses by
-//     category, but they were very primitive and everything was very manual.
-//
-// 1. Origin (like Rocket Money and Mint before it) has issues staying connected to
-//    all my accounts reliably. I consider periodically unreliable connections to
-//    be significantly more annoying than having to do manual entry of every
-//    financial transaction.
-// 1. Origin does not handle closed accounts very well (closed credit cards/bank
-//    accounts/loans).
-// 1. Origin does not allow me to track gross income and count payroll deductions
-//    towards my 401(k) as savings. As someone who is fortunate enough to be able
-//    to max out my 401(k), this really affects my monthly savings rate
-//    calculations.
-// 1. One of the benefits that is included in the Origin subscription is free tax
-//    returns. However, they don't support one of the situations that I had this
-//    year, so I wasn't able to take advantage of that service and ended up having
-//    to pay for a different service anyway.
-// 1. Origin keeps trying to AI-ify everything. I've tried asking questions of the
-//    AI for various financial situations, but its responses have been kinda
-//    obvious and uninsightful at best. I already pay $20/mo for a Claude
-//    subscription which has actually been more helpful with sorting out a few
-//    weird financial situations I've found myself in the last year.
-//
-// In addition, I wanted to convert my personal finances to use
-// [double-entry bookkeeping](https://en.wikipedia.org/wiki/Double-entry_bookkeeping)
-// for learning purposes. Double-entry bookkeeping is slightly unintuitive if you
-// are unfamiliar with it (as I was when I started this journey), but once you get
-// used to it, it's pretty straightforward. I'm going to assume in the rest of this
-// post that you have a basic understand of double-entry bookkeeping.
-//
-// I briefly considered moving back to markdown files, and using AI to help me
-// build better automation of the monthly net worth calculations (which was the
-// most annoying part of the markdown file method). I asked Claude to do some
-// research into best practices, and it surfaced an option that I hadn't even heard
-// of: plain text accounting.
-//
-// ## Plain Text Accounting
-//
-// [Plain Text Accounting](https://plaintextaccounting.org/) (PTA) is an umbrella
-// term for storing accounting data with plaintext files. This can get tedious (as
-// I discovered from my years of using markdown files) so plain text accounting
-// generally is also associated with using software tools to modify and report on
-// the underlying plaintext files. Most plain text accounting programs use
-// double-entry accounting at their core.
-//
-// Of course, since it's plain text, you don't need to use any tools at all or you
-// can easily create your own tooling. You can use a simple text editor to edit the
-// source files. You can create custom programs to manipulate or report on your
-// financial data. You can even take advantage of the fact that plain text is
-// AI-native and use something like Claude Code to analyse your finances for
-// insights.
-//
-// Plain text also has the advantage that you can easily store the files in source
-// control. In my case, I use a git repo that stores all my financial data.
-//
-// After some further research, I landed on using [hledger](https://hledger.org/).
-// It's written in Haskell, seems very well supported by the community, has
-// built-in tools for importing transaction CSVs, and I like its journal file
-// format.
-//
-// In hledger, you create journal files to record journal entries (transactions)
-// with a fairly straightforward syntax. Here is an example journal entry:
-//
-// ```ledger
-// 2026-08-09 * XCEL ENERGY
-//     liabilities:credit-cards:capitalone:venturex   -$80.00  ; date:2026-08-10
-//     expenses:home:utilities                         $80.00
-// ```
-//
+#pause
+
+This can get tedious so PTA generally is also associated with using software
+tools to modify and report on the underlying plaintext files.
+
+#pause
+
+Most plain text accounting programs use double-entry accounting at their core.
+
+#pause
+
+Since it's plain text, you don't need to use any tools at all or you can easily
+create your own tooling.
+
+#speaker-note[
+  - You can use a simple text editor to edit the source files.
+  - You can create custom programs to manipulate or report on your financial data.
+  - You can even take advantage of the fact that plain text is AI-native and use something like Claude Code to analyse your finances for insights.
+]
+
+#pause
+
+It's also super easy to store in source control because it's just text.
+
+#speaker-note[
+  I use a git repo to store all my financial data.
+]
+
+== hledger
+
+There are lots of different plain text accounting programs out there, I chose to
+use [hledger](https://hledger.org/).
+
+- Haskell
+- Seems like it's well-supported by its community
+- Built-in tools for importing transaction CSVs
+- I like its journal file format
+
+#pause
+
+In hledger, you create `.journal` files and put transactions in there and use
+the `hledger` command line tool to report on the data from the journal.
+
+== hledger Transaction Format
+
+```ledger
+2026-08-09 * XCEL ENERGY
+    liabilities:cc:capitalone:venturex   -80.00 USD  ; date:2026-08-10
+    expenses:home:utilities               80.00 USD
+```
+
+This transaction represents a utilities payment of \$80 to Xcel Energy.
+
+#pause
+
+Notice, the transaction sums to zero.
+
+#pause
+
+- `2026-08-09` --- transaction date
+- `*` --- transaction has posted
+- `XCEL ENERGY` --- transaction description
+- `liabilities:cc:capitalone:venturex` --- account name
+- `-80.00 USD` --- amount and commodity for the account
+- `; date:2026-08-10` --- optional metadata (posted date)
+- `expenses:home:utilities` --- account name
+- `80.00 USD` --- amount and commodity for the account
+
+
 // On the first line, we have the transaction date, a `*` indicating that the
 // transaction has posted, and a transaction description. The subsequent lines are
 // the entries that constitute the transaction. Since this is double-entry
