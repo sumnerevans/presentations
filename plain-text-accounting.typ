@@ -31,6 +31,14 @@
 
 #title-slide()
 
+#speaker-note[
+  Heckling is encouraged.
+
+  Also, I'm going to be showing you my actual finances. I was considering
+  anonymising the data, but that would just have been more work than it's
+  worth.
+]
+
 = Personal Finance
 
 #speaker-note[
@@ -282,13 +290,26 @@ It's also super easy to store in source control because it's just text.
 
 = hledger
 
-There are lots of different plain text accounting programs out there, I chose to
-use #link("https://hledger.org")[hledger].
+There are lots of different plain text accounting programs out there, I use
+#link("https://hledger.org")[hledger].
 
 - Written in Haskell
 - Seems like it's well-supported by its community
 - Built-in tools for importing transaction CSVs
 - I like its journal file format
+
+#pause
+
+=== Alternatives
+
+- Beancount
+- Ledger
+- Many more at https://plaintextaccounting.org/#pta-apps
+
+#speaker-note[
+  The rest of this talk is going to be about hledger, although there are
+  similar concepts in other plain text accounting programs.
+]
 
 #pause
 
@@ -623,38 +644,27 @@ balance assertions to correct your amounts going forward:
 
 == CSV Imports
 
-// Here are a few nice features of the `hledger` tool that didn't really fit
-// anywhere else in the blog post:
-//
-// - [hledger can read CSVs](https://hledger.org/1.52/hledger.html#csv),
-//   [apply rules to them](https://hledger.org/1.52/hledger.html#csv-rules-examples),
-//   and [print](https://hledger.org/1.52/hledger.html#print) the data in the
-//   journal format. This made it very easy for me to import transactions based on
-//   transaction exports from my various banking institutions.
-// - The `hledger register` command displays all transactions (optionally scoped to
-//   a specific account). This was helpful during the conversion to see when things
-//   got out of balance.
-// - The `hledger check` command checks the validity of your journal. It ensures
-//   the transactions all sum to zero, and that the balance assertions don't have
-//   any issues.
-// - There is a browser-based UI called [hledger-web](https://hledger.org/web.html)
-//   that uses the journal files and presents visualisations in your browser. This
-//   is helpful for visualising trends like net worth over time.
-//
-// ## Conclusion
-//
-// I've been using this system for only a few weeks, and so far I am enjoying using
-// it. I greatly value the benefits of plain text aided by the reporting tooling
-// that hledger provides. I am also happy with the switch to double-entry
-// accounting, which has solved many annoyances I had with previous systems. Of
-// course, I'm back to manually entering every transaction into my ledger, but the
-// amount of accounting rigour I'm able to apply to all my transactions makes it
-// worth it for me.
-//
-// I'm still learning how to most effectively use double-entry accounting and the
-// hledger tool, but so far I've been able to get all of the financial reporting
-// and data I care about. I don't think I've been using it long enough to give it
-// an unequivocal endorsement. However, I think that if you (1) are as obsessive as
-// I am about keeping track of your finances to the last penny and (2) find having
-// your financial data stored in a highly readable plain text format appealing,
-// then you should look into plain text accounting.
+Many institutions allow you to export your transactions as CSV.
+
+hledger allows you to read CSVs with rules and either print or import them into
+your journal file.
+
+#pause
+
+Demo
+
+= Conclusion
+
+I recommend that you start tracking your finances. The first step to financial
+freedom is knowing where your money is going.
+
+#pause
+
+Double-entry accounting is a very rigorous and powerful tool which I have
+enjoyed using the last few months.
+
+#pause
+
+Plain text accounting allows you to use open source tools to track your
+finances. There are lots of options out there, and I recommend you try one out
+and see how you like it.
