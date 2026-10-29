@@ -333,6 +333,9 @@ There are lots of different plain text accounting programs out there, I use
 #speaker-note[
   The rest of this talk is going to be about hledger, although there are
   similar concepts in other plain text accounting programs.
+
+  In fact, I attempted a conversion from hledger to beancount with Codex and I
+  was able to do it very easily and I can show that later if you want.
 ]
 
 #pause
