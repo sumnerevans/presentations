@@ -148,6 +148,30 @@ I'm going to be honest that I don't really budget very strictly. I mainly just
 track my savings rate and net worth, so we aren't going to really talk too much
 about this.
 
+== Additional Resources
+
+=== Personal Finance
+
+- #link("https://www.youtube.com/@TheRamseyShowEpisodes")[Dave Ramsey] ---
+  Focuses on the psychology of personal finance, and getting out of debt.
+  (https://www.ramseysolutions.com/)
+- #link("https://www.youtube.com/moneyguyshow")[The Money Guy Show] --- Good
+  for more advanced personal finance topics. (https://moneyguy.com/)
+- #link("https://www.youtube.com/@rob_berger")[Rob Berger] --- Focuses on
+  investing and financial independence with a focus on retirement planning.
+- #link("https://www.youtube.com/@HumphreyShow")[The Humphrey Show] ---
+  Conversations with normal people about their finances.
+- #link("https://www.youtube.com/@TheIcedCoffeeHour")[The Iced Coffee Hour] ---
+  Conversations with finance personalities.
+- #link("https://www.youtube.com/@CalebHammer")[Caleb Hammer] ---
+  Financial audits where he yells at people for being bad with money.
+
+=== Economics/Finance
+
+- #link("https://www.youtube.com/@EconomicsExplained")[Economics Explained]
+- #link("https://www.youtube.com/@ThePlainBagel")[The Plain Bagel]
+- #link("https://www.youtube.com/@PBoyle")[Patrick Boyle]
+
 = Personal Finance Software
 
 #speaker-note[
